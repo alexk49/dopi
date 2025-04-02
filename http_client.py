@@ -45,7 +45,7 @@ class Client:
 
     def request(self, url, method="GET", headers={}):
         headers = self.headers or {}
-        
+
         for attempt in range(1, self.max_retries + 1):
             try:
                 if self.conn is None:
@@ -59,7 +59,10 @@ class Client:
                     return response
 
                 print(f"Attempt {attempt}: Received status {response.status}")
-            
+
+                if response.status == 404:
+                    return None
+
             except (http.client.HTTPException, socket.timeout) as e:
                 print(f"Attempt {attempt}: Error - {e}")
 
@@ -67,8 +70,8 @@ class Client:
                 time.sleep(self.retry_delay)
 
         print("Failed to fetch data after retries.")
-        return None 
+        return None
 
     def get_json_dict_from_response(self, response: http.client.HTTPResponse) -> dict:
-        content = response.read().decode('utf-8')
+        content = response.read().decode("utf-8")
         return json.loads(content)
