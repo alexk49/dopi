@@ -1,5 +1,6 @@
 .env
-test_data.txt
+test_data.*
 complete
 failures
 queue
+*egg-info

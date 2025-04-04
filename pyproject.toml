@@ -1,0 +1,26 @@
+[project]
+name = "dopi"
+readme = "README.md"
+description = "Calls for interacting with DOIs"
+dynamic = ["version"]
+dependencies = [
+]
+[project.scripts]
+dopi = "cli:main"
+[project.optional-dependencies]
+lint = [
+    "ruff==0.9.6",
+    "mypy==1.15.0",
+]
+[tool.ruff]
+line-length = 120
+indent-width = 4
+[tool.ruff.lint]
+# Avoid enforcing line-length violations (`E501`)
+ignore = ["E501"]
+[tool.mypy]
+# ignore_missing_imports = true
+# disable_error_code = ["import-untyped"]
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"

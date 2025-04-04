@@ -74,7 +74,7 @@ class Client:
 
     def get_response_data(self, response):
         return response.read().decode("utf-8")
-        
+
     def get_json_dict_from_response(self, response_str: str) -> dict | str:
         """
         This will take the result from get_response_data
@@ -85,4 +85,3 @@ class Client:
         except Exception as err:
             err = f"ERROR reading json from {response_str}, {err}"
             return err
-

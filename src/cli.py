@@ -28,7 +28,11 @@ def set_arg_parser():
         "-d", "-doi", "--doi", type=str, help="Pass single DOI to be validated."
     )
     group.add_argument(
-        "-f", "-file", "--file", type=str, help="Pass filepath for csv file of DOIs to be validated. This should contain the DOIs in the first column and nothing else."
+        "-f",
+        "-file",
+        "--file",
+        type=str,
+        help="Pass filepath for csv file of DOIs to be validated. This should contain the DOIs in the first column and nothing else.",
     )
     return parser
 
@@ -52,11 +56,10 @@ def main():
         email, resolving_host, dois = read_csv_data(args.file)
 
     if resolving_host:
-        results = fetch_dois_data(
-            dois=dois, resolving_host=resolving_host
-        )
-        
+        results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
+
         pprint.pp(results)
+
 
 if __name__ == "__main__":
     main()

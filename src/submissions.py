@@ -2,7 +2,15 @@ import pprint
 import sys
 from pathlib import Path
 
-from helpers import create_lockfile, fetch_dois_data, get_lock_filepath, create_log_filename, read_csv_data, write_results_to_csv, write_full_meta_results_to_csv
+from helpers import (
+    create_lockfile,
+    fetch_dois_data,
+    get_lock_filepath,
+    create_log_filename,
+    read_csv_data,
+    write_results_to_csv,
+    write_full_meta_results_to_csv,
+)
 
 
 def setup_directories(script_dir):
@@ -15,7 +23,7 @@ def setup_directories(script_dir):
         "FAILURES_DIR": script_dir / FAILURES_DIR,
         "COMPLETE_DIR": script_dir / COMPLETE_DIR,
     }
-    
+
     for dir_path in directories.values():
         dir_path.mkdir(exist_ok=True)
     return directories
@@ -29,21 +37,21 @@ def process_csv_file(file, directories):
         results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
 
         pprint.pp(results)
-        
+
         full_meta_filename = create_log_filename("full_metadata_results")
         full_meta_filepath = directories["COMPLETE_DIR"] / full_meta_filename
         write_full_meta_results_to_csv(results, full_meta_filepath)
-        
+
         for res in results:
-            res.pop('full_metadata', None)
+            res.pop("full_metadata", None)
 
         summary_filename = create_log_filename(f"dois_to_{resolving_host}_results")
         summary_filepath = directories["COMPLETE_DIR"] / summary_filename
         write_results_to_csv(results, summary_filepath)
-        
+
         # TODO: Email results
         print("Emailing results (TO BE IMPLEMENTED)")
-        
+
         print(f"{file} has processed successfully, deleting file")
         file.unlink()
         return True
@@ -82,11 +90,11 @@ def main():
         while True:
             queue_dir = directories["QUEUE_DIR"]
             files = sorted(queue_dir.iterdir())
-            
+
             if not files:
                 print("No files to process, exiting.")
                 break
-            
+
             process_queue(files, directories)
     finally:
         print("Process complete, removing lock file")
