@@ -3,7 +3,7 @@ import os
 import pprint
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import List, Dict, Any, Tuple
 
 from http_client import Client
 
@@ -18,6 +18,26 @@ HEADERS = {
     "User-Agent": f"bulk-doi-checker mailto:{EMAIL_ADDRESS}",
     "Mailto": EMAIL_ADDRESS,
 }
+
+LOCK_FILE = "doi_processing.lock"
+
+
+def get_lock_filepath(present_working_dir: os.PathLike) -> os.PathLike:
+    filepath = present_working_dir / LOCK_FILE
+    return filepath
+
+
+def create_lockfile(filepath) -> bool:
+    try:
+        if filepath.is_file():
+            return True
+
+        with open(filepath, "w"):
+            pass
+        return True
+    except Exception as err:
+        print(f"error creating {filepath}: {err}")
+        return False
 
 
 
@@ -47,6 +67,19 @@ def write_results_to_csv(results: list, output_filepath):
             writer.writerow(row)
 
 
+def write_full_meta_results_to_csv(results: list, output_filepath):
+    with open(output_filepath, mode="w", newline="") as file:
+
+        writer = csv.DictWriter(file, fieldnames=results[0]["full_metadata"]["message"].keys())
+        writer.writeheader()
+
+        for index in range(len(results)):
+            row = results[index]["full_metadata"]["message"]
+
+            if row != {}:
+                writer.writerow(row)
+
+
 def create_log_filename(file_str: str, ext=".csv"):
     """
     Filenames contain random unique id to avoid any conflicts
@@ -64,32 +97,80 @@ def get_resolving_url_for_doi(response_dict: dict):
         print(f"unable to find resolving URL: {err}")
 
 
-def check_dois_resolve_to_host(dois: list, resolving_host: str):
+def fetch_dois_data(dois: List[str], resolving_host: str = "", full_metadata: bool = True) -> List[Dict[str, Any]]:
+    """
+    Fetch metadata for a list of DOIs from the Crossref API.
+    """
     results = []
-
+    
     with Client(host=API_HOST, headers=HEADERS) as client:
         for doi in dois:
-            url_path = f"/works/{doi}"
-            response = client.request(url_path)
-
-            if not response:
-                print(f"no resource found for {doi}")
-                results.append({"doi": doi, "status": "FAILURE", "resolving_url": "not_found", "errors": "404"})
-                continue
-
-            response_dict = client.get_json_dict_from_response(response)
-
-            pprint.pp(response_dict)
-
-            resolving_url = get_resolving_url_for_doi(response_dict)
-
-            print(f"{doi} resolves to {resolving_url}")
-
-            if resolving_host in resolving_url:
-                print(f"{resolving_host} in {resolving_url}, {doi} resolves as expected")
-                results.append({"doi": doi, "status": "SUCCESS", "resolving_url": resolving_url, "errors": ""})
-            else:
-                err_msg = f"{resolving_host} NOT in {resolving_url}, {doi} does not resolve correctly"
-                print(err_msg)
-                results.append({"doi": doi, "status": "FAILURE", "resolving_url": resolving_url, "errors": err_msg})
+            result = process_single_doi(client, doi, resolving_host, full_metadata)
+            pprint.pp(result)
+            results.append(result)
+            
     return results
+
+
+def process_single_doi(client: Client, doi: str, resolving_host: str, full_metadata: bool) -> Dict[str, Any]:
+    """Process a single DOI and return its result dictionary."""
+    # default failure template
+    result = {
+        "doi": doi, 
+        "status": "FAILURE", 
+        "resolving_url": "not_found", 
+        "ERRORS": "", 
+        "full_metadata": {"message": {}}
+    }
+    
+    url_path = f"/works/{doi}"
+    response = client.request(url_path)
+    response_data = client.get_response_data(response)
+    
+    if not response_data or ("Resource not found." in response_data):
+        result["ERRORS"] = response_data
+        return result
+        
+    response_dict = client.get_json_dict_from_response(response_data)
+
+    if isinstance(response_dict, str):
+        result["ERRORS"] = response_dict
+        return result
+    
+    print(f"Received data for DOI {doi}")
+    
+    if resolving_host:
+        result = validate_resolving_url(doi, response_dict, resolving_host, result)
+    
+    if full_metadata:
+        result["full_metadata"] = response_dict
+    
+    return result
+
+
+def validate_resolving_url(doi: str, response_dict: Dict, resolving_host: str, result: Dict) -> Dict:
+    """Validate if DOI resolves to the expected host."""
+    resolving_url = get_resolving_url_for_doi(response_dict)
+    
+    if not resolving_url:
+        result["ERRORS"] = "Unable to find resolving URL in metadata"
+        return result
+        
+    print(f"{doi} resolves to {resolving_url}")
+    
+    if resolving_host in resolving_url:
+        print(f"{resolving_host} in {resolving_url}, {doi} resolves as expected")
+        result.update({
+            "status": "SUCCESS", 
+            "resolving_url": resolving_url, 
+            "ERRORS": ""
+        })
+    else:
+        err_msg = f"{resolving_host} NOT in {resolving_url}, {doi} does not resolve correctly"
+        print(err_msg)
+        result.update({
+            "status": "FAILURE", 
+            "resolving_url": resolving_url, 
+            "ERRORS": err_msg
+        })
+    return result

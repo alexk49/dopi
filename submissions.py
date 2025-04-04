@@ -1,70 +1,96 @@
+import pprint
+import sys
 from pathlib import Path
 
-from helpers import check_dois_resolve_to_host, create_log_filename, read_csv_data, write_results_to_csv
+from helpers import create_lockfile, fetch_dois_data, get_lock_filepath, create_log_filename, read_csv_data, write_results_to_csv, write_full_meta_results_to_csv
 
 
-LOCK_FILE = "doi_processing.lock"
-QUEUE_DIR = "queue"
-FAILURES_DIR = "failures"
-COMPLETE_DIR = "complete"
-SCRIPT_DIR = Path().resolve()
+def setup_directories(script_dir):
+    QUEUE_DIR = "queue"
+    FAILURES_DIR = "failures"
+    COMPLETE_DIR = "complete"
+
+    directories = {
+        "QUEUE_DIR": script_dir / QUEUE_DIR,
+        "FAILURES_DIR": script_dir / FAILURES_DIR,
+        "COMPLETE_DIR": script_dir / COMPLETE_DIR,
+    }
+    
+    for dir_path in directories.values():
+        dir_path.mkdir(exist_ok=True)
+    return directories
+
+
+def process_csv_file(file, directories):
+    """Process a single CSV file with DOIs."""
+    try:
+        print(f"Processing {file}")
+        email, resolving_host, dois = read_csv_data(file)
+        results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
+
+        pprint.pp(results)
+        
+        full_meta_filename = create_log_filename("full_metadata_results")
+        full_meta_filepath = directories["COMPLETE_DIR"] / full_meta_filename
+        write_full_meta_results_to_csv(results, full_meta_filepath)
+        
+        for res in results:
+            res.pop('full_metadata', None)
+
+        summary_filename = create_log_filename(f"dois_to_{resolving_host}_results")
+        summary_filepath = directories["COMPLETE_DIR"] / summary_filename
+        write_results_to_csv(results, summary_filepath)
+        
+        # TODO: Email results
+        print("Emailing results (TO BE IMPLEMENTED)")
+        
+        print(f"{file} has processed successfully, deleting file")
+        file.unlink()
+        return True
+    except Exception as err:
+        print(f"Error with file: {file}: {err}")
+        output_path = directories["FAILURES_DIR"] / file.name
+        file.replace(output_path)
+        return False
+
+
+def process_queue(files, directories):
+    """Process all CSV files in the queue directory."""
+    for file in files:
+        if file.is_file() and file.suffix == ".csv":
+            process_csv_file(file, directories)
+        else:
+            print(f"Invalid file type found at: {file}")
+            output_path = directories["FAILURES_DIR"] / file.name
+            file.replace(output_path)
 
 
 def main():
-    lock_filepath = SCRIPT_DIR / LOCK_FILE
+    """
+    This should be run as a subprocess by the main app
+    """
+    script_dir = Path().resolve()
+    lock_filepath = get_lock_filepath(script_dir)
 
-    queue_dir_path = Path().resolve() / QUEUE_DIR
-    failures_dir_path = Path().resolve() / FAILURES_DIR
-    complete_dir_path = Path().resolve() / COMPLETE_DIR
+    if not create_lockfile(lock_filepath):
+        print("UNABLE TO CREATE LOCK FILE EXITING PROGRAM")
+        sys.exit(1)
 
-    queue_dir_path.mkdir(exist_ok=True)
-    failures_dir_path.mkdir(exist_ok=True)
-    complete_dir_path.mkdir(exist_ok=True)
+    directories = setup_directories(script_dir)
 
-    while True:
-
-        files = sorted(queue_dir_path.iterdir())
-
-        if not files:
-            break
-
-        for file in files:
-            if file.is_file() and file.suffix == ".csv":
-                try:
-                    print(file)
-                    email, resolving_host, dois = read_csv_data(file)
-                    print(email)
-                    print(resolving_host)
-                    print(dois)
-
-                    print(f"processing {file}")
-                    results = check_dois_resolve_to_host(dois=dois, resolving_host=resolving_host)
-
-                    print(f"got results: {results}")
-
-                    output_filename = create_log_filename(f"dois_to_{resolving_host}_results")
-                    output_filepath = complete_dir_path / output_filename
-
-                    print(f"writing results to csv at {output_filename}")
-                    write_results_to_csv(results, output_filepath)
-
-                    # TODO
-                    print("emailing results (TO BE IMPLEMENTED)")
-
-                    print(f"{file} has processed successfully, deleting file")
-                    file.unlink()
-                except Exception as err:
-                    print(f"error with file: {file}: {err}")
-                    output_path = failures_dir_path / file.name
-                    file.replace(output_path)
-            else:
-                print(f"invalid file type found at: {file}")
-                output_path = failures_dir_path / file.name
-                file.replace(output_path)
-
-
-    print("process complete removing lock file")
-    lock_filepath.unlink(missing_ok=True)
+    try:
+        while True:
+            queue_dir = directories["QUEUE_DIR"]
+            files = sorted(queue_dir.iterdir())
+            
+            if not files:
+                print("No files to process, exiting.")
+                break
+            
+            process_queue(files, directories)
+    finally:
+        print("Process complete, removing lock file")
+        lock_filepath.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

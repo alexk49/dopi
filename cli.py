@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import pprint
 import sys
 
-from helpers import check_dois_resolve_to_host, read_csv_data
+from helpers import fetch_dois_data, read_csv_data
 
 
 def set_arg_parser():
@@ -48,20 +49,14 @@ def main():
         dois = args.dois.split(",")
 
     if args.file:
-        dois = read_csv_data(args.file)
-
-    resolving_host = args.resolving_host
+        email, resolving_host, dois = read_csv_data(args.file)
 
     if resolving_host:
-        successes, failures = check_dois_resolve_to_host(
+        results = fetch_dois_data(
             dois=dois, resolving_host=resolving_host
         )
-        print("resolved as expected: ")
-        print(successes)
-
-        print("didn't resolve as expected")
-        print(failures)
-
+        
+        pprint.pp(results)
 
 if __name__ == "__main__":
     main()

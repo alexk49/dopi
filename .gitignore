@@ -1,2 +1,5 @@
 .env
 test_data.txt
+complete
+failures
+queue

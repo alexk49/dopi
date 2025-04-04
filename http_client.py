@@ -61,7 +61,7 @@ class Client:
                 print(f"Attempt {attempt}: Received status {response.status}")
 
                 if response.status == 404:
-                    return None
+                    return response
 
             except (http.client.HTTPException, socket.timeout) as e:
                 print(f"Attempt {attempt}: Error - {e}")
@@ -72,6 +72,17 @@ class Client:
         print("Failed to fetch data after retries.")
         return None
 
-    def get_json_dict_from_response(self, response: http.client.HTTPResponse) -> dict:
-        content = response.read().decode("utf-8")
-        return json.loads(content)
+    def get_response_data(self, response):
+        return response.read().decode("utf-8")
+        
+    def get_json_dict_from_response(self, response_str: str) -> dict | str:
+        """
+        This will take the result from get_response_data
+        and convert into dict
+        """
+        try:
+            return json.loads(response_str)
+        except Exception as err:
+            err = f"ERROR reading json from {response_str}, {err}"
+            return err
+
