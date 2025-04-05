@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import pprint
 import sys
+from pathlib import Path
 
-from helpers import fetch_dois_data, read_csv_data
+from helpers import fetch_dois_data, read_dois_from_csv
+from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
 
 def set_arg_parser():
@@ -15,6 +18,18 @@ def set_arg_parser():
         "--resolving-host",
         type=str,
         help="If passed the script will check the given DOI/s to see if they resolve to the given host URL.",
+    )
+    parser.add_argument(
+        "-full",
+        "--full-metadata",
+        action="store_true",
+        help="If passed the full metadata will be queried for",
+    )
+    parser.add_argument(
+        "-w",
+        "--write-to-csv",
+        action="store_true",
+        help="If passed output results will be written to csv",
     )
 
     group = parser.add_mutually_exclusive_group()
@@ -53,12 +68,34 @@ def main():
         dois = args.dois.split(",")
 
     if args.file:
-        email, resolving_host, dois = read_csv_data(args.file)
+        dois = read_dois_from_csv(args.file)
+        print(dois)
+
+    resolving_host = args.resolving_host
+
+    if not resolving_host:
+        try:
+            resolving_host = os.environ["RESOLVING_HOST"]
+        except KeyError:
+            pass
+
+    full_metadata = args.full_metadata
 
     if resolving_host:
-        results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
+        results = fetch_dois_data(dois=dois, resolving_host=resolving_host, full_metadata=full_metadata)
+    else:
+        results = fetch_dois_data(dois=dois, resolving_host=resolving_host, full_metadata=full_metadata)
 
-        pprint.pp(results)
+    if args.write_to_csv:
+        output_dir = Path().resolve() / "complete"
+
+        if full_metadata:
+            write_full_metadata_to_csv(results, output_dir)
+
+        if full_metadata and resolving_host:
+            write_resolving_host_summary_to_csv(resolving_host=resolving_host, results=results, output_dir=output_dir)
+
+    pprint.pp(results)
 
 
 if __name__ == "__main__":

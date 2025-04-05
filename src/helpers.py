@@ -1,6 +1,5 @@
 import csv
 import os
-import pprint
 import uuid
 from datetime import datetime
 from typing import List, Dict, Any, Tuple
@@ -40,7 +39,7 @@ def create_lockfile(filepath) -> bool:
         return False
 
 
-def read_csv_data(path_to_csv: str | os.PathLike) -> Tuple[str, str, list]:
+def read_full_csv_data(path_to_csv: str | os.PathLike) -> Tuple[str, str, list]:
     """
     Format of csv should always be:
 
@@ -56,6 +55,17 @@ def read_csv_data(path_to_csv: str | os.PathLike) -> Tuple[str, str, list]:
         host = next(reader)[0]
         dois = [row[0] for row in reader]
     return email, host, dois
+
+
+def read_dois_from_csv(path_to_csv: str | os.PathLike) -> list:
+    """
+    CSV should contain dois in first column and nothing else
+    >>> dois = read_csv_data(filepath)
+    """
+    with open(path_to_csv, "r", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        dois = [row[0] for row in reader]
+    return dois
 
 
 def write_results_to_csv(results: list, output_filepath):
@@ -108,7 +118,6 @@ def fetch_dois_data(
     with Client(host=API_HOST, headers=HEADERS) as client:
         for doi in dois:
             result = process_single_doi(client, doi, resolving_host, full_metadata)
-            pprint.pp(result)
             results.append(result)
 
     return results
