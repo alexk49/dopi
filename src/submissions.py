@@ -1,4 +1,3 @@
-import os
 import pprint
 import sys
 from pathlib import Path
@@ -7,10 +6,9 @@ from helpers import (
     create_lockfile,
     fetch_dois_data,
     get_lock_filepath,
-    create_log_filename,
     read_full_csv_data,
-    write_results_to_csv,
-    write_full_meta_results_to_csv,
+    write_resolving_host_summary_to_csv,
+    write_full_metadata_to_csv,
 )
 
 
@@ -30,35 +28,6 @@ def setup_directories(script_dir):
     return directories
 
 
-def write_full_metadata_to_csv(results: list, output_dir: str | os.PathLike = "completed", directories: dict = {} ):
-    """
-    Helper function that can be called by cli,
-    or as part of app submission
-    """
-    full_meta_filename = create_log_filename("full_metadata_results")
-
-    if directories != {}:
-        full_meta_filepath = directories["COMPLETE_DIR"] / full_meta_filename
-    else:
-        full_meta_filepath = output_dir / full_meta_filename
-
-    write_full_meta_results_to_csv(results, full_meta_filepath)
-
-
-def write_resolving_host_summary_to_csv(resolving_host, results: list, output_dir: str | os.PathLike = "completed", directories: dict = {}):
-    for res in results:
-        res.pop("full_metadata", None)
-
-    summary_filename = create_log_filename(f"dois_to_{resolving_host}_results")
-
-    if directories != {}:
-        summary_filepath = directories["COMPLETE_DIR"] / summary_filename
-    else:
-        summary_filepath = output_dir / summary_filename
-
-    write_results_to_csv(results, summary_filepath)
-
-
 def process_csv_file(file, directories):
     """Process a single CSV file with DOIs."""
     try:
@@ -67,7 +36,7 @@ def process_csv_file(file, directories):
         results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
 
         pprint.pp(results)
-        
+
         write_full_metadata_to_csv(results, directories=directories)
 
         write_resolving_host_summary_to_csv(resolving_host, results, directories=directories)
@@ -85,7 +54,7 @@ def process_csv_file(file, directories):
         return False
 
 
-def process_queue(files, directories):
+def process_files(files, directories):
     """Process all CSV files in the queue directory."""
     for file in files:
         if file.is_file() and file.suffix == ".csv":
@@ -96,7 +65,7 @@ def process_queue(files, directories):
             file.replace(output_path)
 
 
-def main():
+def process_queue():
     """
     This should be run as a subprocess by the main app
     """
@@ -118,11 +87,11 @@ def main():
                 print("No files to process, exiting.")
                 break
 
-            process_queue(files, directories)
+            process_files(files, directories)
     finally:
         print("Process complete, removing lock file")
         lock_filepath.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
-    main()
+    process_queue()

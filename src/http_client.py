@@ -35,9 +35,7 @@ class Client:
             return self.conn
 
     def _create_connection(self):
-        self.conn = http.client.HTTPSConnection(
-            host=self.host, timeout=self.timeout, context=self.context
-        )
+        self.conn = http.client.HTTPSConnection(host=self.host, timeout=self.timeout, context=self.context)
 
     def close_connection(self):
         self.conn.close()
@@ -83,5 +81,5 @@ class Client:
         try:
             return json.loads(response_str)
         except Exception as err:
-            err = f"ERROR reading json from {response_str}, {err}"
-            return err
+            err_msg = f"ERROR reading json from {response_str}, {err}"
+            return err_msg

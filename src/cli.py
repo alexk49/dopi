@@ -9,7 +9,7 @@ from helpers import fetch_dois_data, read_dois_from_csv
 from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
 
-def set_arg_parser():
+def set_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -39,9 +39,7 @@ def set_arg_parser():
         type=str,
         help="Pass DOIs separated by comma to be validated.",
     )
-    group.add_argument(
-        "-d", "-doi", "--doi", type=str, help="Pass single DOI to be validated."
-    )
+    group.add_argument("-d", "-doi", "--doi", type=str, help="Pass single DOI to be validated.")
     group.add_argument(
         "-f",
         "-file",

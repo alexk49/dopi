@@ -2,6 +2,7 @@ import csv
 import os
 import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 from http_client import Client
@@ -18,98 +19,11 @@ HEADERS = {
     "Mailto": EMAIL_ADDRESS,
 }
 
-LOCK_FILE = "doi_processing.lock"
+
+""" Functions for interacting with CrossRef API """
 
 
-def get_lock_filepath(present_working_dir: os.PathLike) -> os.PathLike:
-    filepath = present_working_dir / LOCK_FILE
-    return filepath
-
-
-def create_lockfile(filepath) -> bool:
-    try:
-        if filepath.is_file():
-            return True
-
-        with open(filepath, "w"):
-            pass
-        return True
-    except Exception as err:
-        print(f"error creating {filepath}: {err}")
-        return False
-
-
-def read_full_csv_data(path_to_csv: str | os.PathLike) -> Tuple[str, str, list]:
-    """
-    Format of csv should always be:
-
-    hello@email.com
-    hostsite-dois-should-resolve-to
-    doi
-    doi
-    >>> email, resolving_host, dois = read_csv_data(filepath)
-    """
-    with open(path_to_csv, "r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        email = next(reader)[0]
-        host = next(reader)[0]
-        dois = [row[0] for row in reader]
-    return email, host, dois
-
-
-def read_dois_from_csv(path_to_csv: str | os.PathLike) -> list:
-    """
-    CSV should contain dois in first column and nothing else
-    >>> dois = read_csv_data(filepath)
-    """
-    with open(path_to_csv, "r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        dois = [row[0] for row in reader]
-    return dois
-
-
-def write_results_to_csv(results: list, output_filepath):
-    with open(output_filepath, mode="w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=results[0].keys())
-        writer.writeheader()
-        for row in results:
-            writer.writerow(row)
-
-
-def write_full_meta_results_to_csv(results: list, output_filepath):
-    with open(output_filepath, mode="w", newline="") as file:
-        writer = csv.DictWriter(
-            file, fieldnames=results[0]["full_metadata"]["message"].keys()
-        )
-        writer.writeheader()
-
-        for index in range(len(results)):
-            row = results[index]["full_metadata"]["message"]
-
-            if row != {}:
-                writer.writerow(row)
-
-
-def create_log_filename(file_str: str, ext=".csv"):
-    """
-    Filenames contain random unique id to avoid any conflicts
-    """
-    datestamp = datetime.now().strftime("%Y_%m_%d_%H%M")
-    unique_id = str(uuid.uuid4())
-    filename = file_str + "_" + datestamp + "-" + unique_id + ext
-    return filename
-
-
-def get_resolving_url_for_doi(response_dict: dict):
-    try:
-        return response_dict["message"]["resource"]["primary"]["URL"]
-    except Exception as err:
-        print(f"unable to find resolving URL: {err}")
-
-
-def fetch_dois_data(
-    dois: List[str], resolving_host: str = "", full_metadata: bool = True
-) -> List[Dict[str, Any]]:
+def fetch_dois_data(dois: List[str], resolving_host: str = "", full_metadata: bool = True) -> List[Dict[str, Any]]:
     """
     Fetch metadata for a list of DOIs from the Crossref API.
     """
@@ -123,9 +37,7 @@ def fetch_dois_data(
     return results
 
 
-def process_single_doi(
-    client: Client, doi: str, resolving_host: str, full_metadata: bool
-) -> Dict[str, Any]:
+def process_single_doi(client: Client, doi: str, resolving_host: str, full_metadata: bool) -> Dict[str, Any]:
     """Process a single DOI and return its result dictionary."""
     # default failure template
     result = {
@@ -161,9 +73,16 @@ def process_single_doi(
     return result
 
 
-def validate_resolving_url(
-    doi: str, response_dict: Dict, resolving_host: str, result: Dict
-) -> Dict:
+def get_resolving_url_for_doi(response_dict: dict) -> dict | str:
+    try:
+        return response_dict["message"]["resource"]["primary"]["URL"]
+    except Exception as err:
+        err_msg = f"unable to find resolving URL: {err}"
+        print(err_msg)
+        return err_msg
+
+
+def validate_resolving_url(doi: str, response_dict: dict, resolving_host: str, result: dict) -> dict:
     """Validate if DOI resolves to the expected host."""
     resolving_url = get_resolving_url_for_doi(response_dict)
 
@@ -175,15 +94,118 @@ def validate_resolving_url(
 
     if resolving_host in resolving_url:
         print(f"{resolving_host} in {resolving_url}, {doi} resolves as expected")
-        result.update(
-            {"status": "SUCCESS", "resolving_url": resolving_url, "ERRORS": ""}
-        )
+        result.update({"status": "SUCCESS", "resolving_url": resolving_url, "ERRORS": ""})
     else:
-        err_msg = (
-            f"{resolving_host} NOT in {resolving_url}, {doi} does not resolve correctly"
-        )
+        err_msg = f"{resolving_host} NOT in {resolving_url}, {doi} does not resolve correctly"
         print(err_msg)
-        result.update(
-            {"status": "FAILURE", "resolving_url": resolving_url, "ERRORS": err_msg}
-        )
+        result.update({"status": "FAILURE", "resolving_url": resolving_url, "ERRORS": err_msg})
     return result
+
+
+""" Functions for lockfile """
+
+LOCK_FILE = "doi_processing.lock"
+
+
+def get_lock_filepath(present_working_dir: Path) -> Path:
+    filepath = present_working_dir / LOCK_FILE
+    return filepath
+
+
+def create_lockfile(filepath) -> bool:
+    try:
+        if filepath.is_file():
+            return True
+
+        with open(filepath, "w"):
+            pass
+        return True
+    except Exception as err:
+        print(f"error creating {filepath}: {err}")
+        return False
+
+
+""" Functions for reading csv files """
+
+
+def read_full_csv_data(path_to_csv: str | os.PathLike) -> Tuple[str, str, list]:
+    """
+    Format of csv should always be:
+
+    hello@email.com
+    hostsite-dois-should-resolve-to
+    doi
+    doi
+    >>> email, resolving_host, dois = read_csv_data(filepath)
+    """
+    with open(path_to_csv, "r", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        email = next(reader)[0]
+        host = next(reader)[0]
+        dois = [row[0] for row in reader]
+    return email, host, dois
+
+
+def read_dois_from_csv(path_to_csv: str | os.PathLike) -> list:
+    """
+    CSV should contain dois in first column and nothing else
+    >>> dois = read_csv_data(filepath)
+    """
+    with open(path_to_csv, "r", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        dois = [row[0] for row in reader]
+    return dois
+
+
+""" Functions for writing to csv files """
+
+
+def create_log_filename(file_str: str, ext=".csv") -> str:
+    """
+    Filenames contain random unique id to avoid any conflicts
+
+    Used to create output filename for csv files
+    """
+    datestamp = datetime.now().strftime("%Y_%m_%d_%H%M")
+    unique_id = str(uuid.uuid4())
+    filename = file_str + "_" + datestamp + "-" + unique_id + ext
+    return filename
+
+
+def write_resolving_host_summary_to_csv(
+    resolving_host, results: list, output_dir: Path = Path("output"), directories: dict = {}
+) -> None:
+    for res in results:
+        res.pop("full_metadata", None)
+
+    summary_filename = create_log_filename(f"dois_to_{resolving_host}_results")
+
+    if directories != {}:
+        summary_filepath = directories["COMPLETE_DIR"] / summary_filename
+    else:
+        summary_filepath = output_dir / summary_filename
+
+    with open(summary_filepath, mode="w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=results[0].keys())
+        writer.writeheader()
+        for row in results:
+            writer.writerow(row)
+
+
+def write_full_metadata_to_csv(results: list, output_dir: Path = Path("output"), directories: dict = {}) -> None:
+    full_meta_filename = create_log_filename("full_metadata_results")
+
+    if directories != {}:
+        full_meta_filepath = directories["COMPLETE_DIR"] / full_meta_filename
+    else:
+        full_meta_filepath = output_dir / full_meta_filename
+
+    with open(full_meta_filepath, mode="w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=results[0]["full_metadata"]["message"].keys())
+        writer.writeheader()
+
+        for index in range(len(results)):
+            row = results[index]["full_metadata"]["message"]
+
+            if row != {}:
+                writer.writerow(row)

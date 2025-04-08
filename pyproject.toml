@@ -4,6 +4,7 @@ readme = "README.md"
 description = "Calls for interacting with DOIs"
 dynamic = ["version"]
 dependencies = [
+    "bottle==0.13.2",
 ]
 [project.scripts]
 dopi = "cli:main"
