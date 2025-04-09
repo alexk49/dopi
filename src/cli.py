@@ -2,9 +2,11 @@
 import argparse
 import os
 import pprint
+import subprocess
 import sys
 from pathlib import Path
 
+from app import run_app
 from helpers import fetch_dois_data, read_dois_from_csv
 from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
@@ -47,16 +49,55 @@ def set_arg_parser() -> argparse.ArgumentParser:
         type=str,
         help="Pass filepath for csv file of DOIs to be validated. This should contain the DOIs in the first column and nothing else.",
     )
+    group.add_argument(
+        "-app",
+        "-run",
+        "--run-app",
+        action="store_true",
+        help="Run web application locally",
+    )
+    group.add_argument(
+        "-l",
+        "--lint",
+        action="store_true",
+        help="Lint python files.",
+    )
     return parser
+
+
+def run_command(command):
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {' '.join(command)}")
+        sys.exit(e.returncode)
+
+
+def run_linters():
+    run_command(["ruff", "check", ".", "--fix"])
+
+    # Run ruff format
+    run_command(["ruff", "format", "."])
+
+    # Run mypy
+    run_command(["mypy", "."])
 
 
 def main():
     parser = set_arg_parser()
     args = parser.parse_args()
 
-    if not args.doi and not args.dois and not args.file:
+    if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
+
+    if args.run_app:
+        run_app()
+        sys.exit()
+
+    if args.lint:
+        run_linters()
+        sys.exit()
 
     if args.doi:
         print("single doi passed to validate")
