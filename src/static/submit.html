@@ -8,43 +8,57 @@
   <script type="module" src="/static/scripts.js"></script>
 </head>
 <body>
-  <button id="back-arrow"><a id="back-button-link" href="/">&larr;</a></button>
+  <a href="/" id="back-arrow" aria-label="Go back to homepage">&larr;</a>
   <main>
     <h1>Submit</h1>
     <form action="/submit" method="post" class="submit-form">
       <div class="form-group">
-        <label for="email">Enter your email: </label>
-        <input type="email" name="email" id="email" required />
+        <div class="label-input-row">
+          <label for="email">Enter your email:</label>
+          <input type="email" name="email" id="email" required aria-describedby="email_helper" />
+        </div>
+        <div class="tooltip" id="email_helper" role="tooltip">
+          Your email will be stored on the server until your submission is processed.
+        </div>
       </div>
-   <div id="email_help_container" class="tooltip-container">
-      <span class="tooltip-trigger" aria-describedby="email_helper"></span>
-      <div class="tooltip" id="email_helper" role="tooltip">Your email will be stored on the server until your submission is processed and will be used to notify you the results only. Your email will then be deleted from the server.</div>
-  </div>
-      <div id="resolving_host_group" class="form-group form-group-with-tooltip">
-      <label for="resolving-host">Enter your resolving host: </label>
-      <input id="resolving_host_input" type="resolving-host" name="resolving_host" required />
-      </div>
-   <div id="host_helper_container" class="tooltip-container">
-      <span class="tooltip-trigger" aria-describedby="host_helper"></span>
-      <div class="tooltip" id="host_helper" role="tooltip">To check your Dois resolve to https://www.example.com enter resolving host as: example.com</div>
-  </div>
-<div class="form-group form-group-with-tooltip">
-  <legend>Dois to check: </legend>
-  <label><input type="radio" name="input_method" value="dois_text" id="text_radio" checked />Text Entry</label>
-  <label><input type="radio" name="input_method" value="dois_upload" id="file_radio" />Upload a file</label>
-</div>
-  <textarea id="dois_text" name="dois_text" rows="5" cols="40" placeholder="Enter one Doi per line"></textarea>
-  <input id="dois_upload" type="file" name="dois_upload" />
-   <div id="doi_upload_helper_container" class="tooltip-container">
-      <span class="tooltip-trigger" aria-describedby="file_upload_help"></span>
-      <div class="tooltip" id="file_upload_help" role="tooltip">Upload a .csv file with no header information and dois in the first column only.</div>
-  </div>
       <div class="form-group">
-      <legend>Get full metadata from CrossRef?</legend>
+        <div class="label-input-row">
+          <label for="resolving_host_input">Enter your resolving host:</label>
+          <input type="text" name="resolving_host" id="resolving_host_input" required aria-describedby="host_helper" />
+        </div>
+        <div class="tooltip" id="host_helper" role="tooltip">
+          To check https://www.example.com enter resolving host as: example.com
+        </div>
+      </div>
+      <fieldset class="form-group">
+        <div class="legend-with-radios">
+        <legend>DOIs to check:</legend>
+        <label>
+          <input type="radio" name="input_method" value="dois_text" id="text_radio" checked />Text Entry
+        </label>
+        <label>
+          <input type="radio" name="input_method" value="dois_upload" id="file_radio" />Upload a file
+        </label>
+        </div>
+      </fieldset>
+        <div id="dois_text_wrapper">
+          <textarea id="dois_text" name="dois_text" rows="5" cols="40" placeholder="Enter one Doi per line"></textarea>
+          <div id="dois_text_counter" class="tooltip" aria-live="polite"></div>
+        </div>
+        <div id="dois_upload_wrapper">
+          <input id="dois_upload" type="file" name="dois_upload" />
+          <div id="file_upload_help" class="tooltip">Upload a .csv file with no header information and dois in the first column only.</div>
+        </div>
+      <fieldset class="form-group">
+        <div class="legend-with-radios">
+        <legend>Get full metadata from CrossRef?</legend>
         <label><input type="radio" name="full_meta" value="yes" />Yes</label>
         <label><input type="radio" name="full_meta" value="no" checked />No</label>
+        </div>
+      </fieldset>
+      <div id="submit-btn-container" class="btn-container">
+        <button id="submit-btn" class="submit-btn" type="submit" value="submit">Submit</button>
       </div>
-        <button id="submit-button" type="submit" value="submit">Submit</button>
     </form>
   </main>
 </body>

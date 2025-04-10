@@ -9,18 +9,12 @@ main {
   margin: 0 auto;
   max-width: 50em;
   line-height: 1.5;
-  padding: 0.5em 1em;
+  padding: 0.25em 0.25em;
   display: flex;
   flex-direction: column;
-}
-
-
-h1
-h2
-h3
-h4 {
-  margin-top: 0.25em;
-  padding-top: 0.25em;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1em;
 }
 
 
@@ -38,11 +32,9 @@ h1 {
   background: none;
   border: none;
   font-size:  x-large;
-  font-weight: bold
-}
-
-
-#back-button-link {
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
   color: inherit;
   text-decoration: none;
 }
@@ -54,47 +46,59 @@ h1 {
 .submit-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  padding: 0.5em;
 }
 
 
 .form-group {
+  margin-bottom: 1em;
   display: flex;
-  align-items: center;
-  margin-bottom: 0.5em;
+  flex-direction: column;
 }
 
 
-.form-group-with-tooltip {
-  margin-bottom: 0;
+.label-input-row {
+  gap: 0.5em;
 }
 
 
 .tooltip {
-  color: #6c757d !important;
-  margin-bottom: 0.5em;
-  padding: 0.25em;
+  margin-top: 0.25em;
+  font-size: 0.9em;
+  color: #6c757d;
+  max-width: 40em;
 }
 
 
-.submit-form textarea,
+.legend-with-radios {
+  display: flex;
+  align-items: center;
+}
+
+
+fieldset.form-group {
+  border: none;
+  padding: 0;
+}
+
+
+fieldset.form-group legend {
+  padding: 0;
+}
+
+
+.submit-form div,
+.submit-form fieldset,
 .submit-form label,
 .submit-form input,
 .submit-form legend {
-  padding: 0.25em;
-  margin-bottom: 0.25em;
-  margin-right: 1em;
-  margin-bottom: 0.5em;
+  padding: 0.1em; 
+  margin-right: 0.5em;
+  /* margin-bottom: 0.1em; */ 
 }
 
 
-#dois_text {
-  width: 50%;
-}
-
-
-#dois_upload,
-#doi_upload_helper_container {
+#dois_upload_wrapper {
   /* hide dois file input and helper on page load */
   display: none;
 }
