@@ -65,11 +65,15 @@ def process_files(files, directories):
             file.replace(output_path)
 
 
-def process_queue():
+def process_queue(app_dir = None):
     """
     This should be run as a subprocess by the main app
     """
-    script_dir = Path().resolve()
+    if not app_dir:
+        script_dir = Path().resolve()
+    else:
+        script_dir = app_dir
+
     lock_filepath = get_lock_filepath(script_dir)
 
     if not create_lockfile(lock_filepath):

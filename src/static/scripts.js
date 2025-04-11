@@ -33,4 +33,32 @@ document.addEventListener('DOMContentLoaded', () => {
   fileRadio.addEventListener('click', toggleDoiInputs);
   textRadio.addEventListener('click', toggleDoiInputs);
 
+  document.getElementById('doi_submit_form').addEventListener('submit', async function(e) {
+
+    e.preventDefault();
+
+    const form = this
+    const formData = new FormData(form);
+
+    const response = await fetch('/submit', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+
+    const messageDiv = document.getElementById('message');
+    if (result.success) {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = result.message;
+
+        form.reset();
+    } else {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = result.error;
+        messageDiv.setAttribute('role', isError ? 'alert' : 'status');
+        messageDiv.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+    }
+  });
+
 });

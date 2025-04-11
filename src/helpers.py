@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,13 @@ HEADERS = {
     "User-Agent": f"bulk-doi-checker mailto:{EMAIL_ADDRESS}",
     "Mailto": EMAIL_ADDRESS,
 }
+
+
+def get_list_from_str(dois: str) -> list:
+    """
+    Convert given str of separated by new lines into a list
+    """
+    return re.split(r"[\r\n]+", dois)
 
 
 """ Functions for interacting with CrossRef API """
