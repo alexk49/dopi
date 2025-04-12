@@ -47,17 +47,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const result = await response.json();
 
+    console.log("RESULT")
+    console.log(result)
+
     const messageDiv = document.getElementById('message');
+    messageDiv.textContent = result.message;
+
     if (result.success) {
         messageDiv.style.color = 'green';
-        messageDiv.textContent = result.message;
-
         form.reset();
     } else {
         messageDiv.style.color = 'red';
-        messageDiv.textContent = result.error;
-        messageDiv.setAttribute('role', isError ? 'alert' : 'status');
-        messageDiv.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+        messageDiv.setAttribute('role', 'alert');
+        messageDiv.setAttribute('aria-live', 'assertive');
+
+        const errorsDiv = document.getElementById('errors');
+
+        const errorList = Object.entries(result.errors).map(
+          ([field, msg]) => `<li><strong>${field}</strong>: ${msg}</li>`
+).join('');
+        console.log("ERRORS: ")
+        console.log(errorList)
+        errorsDiv.innerHTML = `<ul>${errorList}</ul>`;
     }
   });
 

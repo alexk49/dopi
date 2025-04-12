@@ -1,11 +1,11 @@
 import csv
-import json
 from pathlib import Path
 
 from bottle import default_app, response, request, static_file
 
+import validators
 from helpers import get_list_from_str, get_lock_filepath, create_log_filename
-from submissions import process_queue, setup_directories
+from submissions import setup_directories
 
 
 # app = Bottle()
@@ -48,15 +48,34 @@ def post_submit():
     print(dois_upload)
     print(full_meta)
 
-    # TODO validate form submission
+    dois_list: list = get_list_from_str(dois_text)
+    invalid_dois = validators.get_invalid_dois(dois_list)
+
+    print(dois_list)
+    print(invalid_dois)
+
+    if invalid_dois:
+        dois = {"dois": {"ok": False, "error": f"Invalid Dois given: {', '.join(invalid_dois)}"}}
+    else:
+        dois = {"dois": {"ok": True, "value": dois_text}}
+
+    result = validators.validate_form(request.forms)
+    print(result)
+
+    result.update(dois)
+    print(result)
+
+    errors = validators.get_errors(result)
+
+    print(errors)
+
+    if errors:
+        return {"success": False, "message": "Invalid form", "errors": errors}
 
     output_filename = create_log_filename(f"checks_to_{resolver}")
     output_path = directories["QUEUE_DIR"] / output_filename
 
-    if dois_text:
-
-        dois_list: list = get_list_from_str(dois_text)
-
+    if dois_list:
         with open(output_path, mode="w", newline="") as file:
             writer = csv.writer(file)
 
@@ -75,8 +94,8 @@ def post_submit():
         print("starting queue process")
         # process_queue(APP_DIR)
 
-    response.content_type = 'application/json'
-    return {'success': True, 'message': 'Thank you, your submission has been added to the queue!'}
+    response.content_type = "application/json"
+    return {"success": True, "message": "Thank you, your submission has been added to the queue!", "errors": {}}
 
 
 def run_app():

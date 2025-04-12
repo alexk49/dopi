@@ -65,7 +65,7 @@ def process_files(files, directories):
             file.replace(output_path)
 
 
-def process_queue(app_dir = None):
+def process_queue(app_dir=None):
     """
     This should be run as a subprocess by the main app
     """
