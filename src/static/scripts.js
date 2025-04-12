@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = this
     const formData = new FormData(form);
 
+    const errorsDiv = document.getElementById('errors');
+    const messageDiv = document.getElementById('message');
+
+    errorsDiv.textContent = ''
+    errorsDiv.innerHTML = ''
+
     const response = await fetch('/submit', {
         method: 'POST',
         body: formData
@@ -50,18 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("RESULT")
     console.log(result)
 
-    const messageDiv = document.getElementById('message');
     messageDiv.textContent = result.message;
 
     if (result.success) {
         messageDiv.style.color = 'green';
         form.reset();
+        errorsDiv.innerHTML = ''
     } else {
         messageDiv.style.color = 'red';
         messageDiv.setAttribute('role', 'alert');
         messageDiv.setAttribute('aria-live', 'assertive');
-
-        const errorsDiv = document.getElementById('errors');
 
         const errorList = Object.entries(result.errors).map(
           ([field, msg]) => `<li><strong>${field}</strong>: ${msg}</li>`

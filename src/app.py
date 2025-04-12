@@ -3,8 +3,8 @@ from pathlib import Path
 
 from bottle import default_app, response, request, static_file
 
-import validators
-from helpers import get_list_from_str, get_lock_filepath, create_log_filename
+from validators import validate_form, get_errors
+from helpers import get_lock_filepath, create_log_filename
 from submissions import setup_directories
 
 
@@ -34,56 +34,31 @@ def submit():
 
 @app.post("/submit")
 def post_submit():
+    """
+    Can access individual elements like:
     email = request.forms.email
-    resolver = request.forms.resolving_host
-
-    dois_text = request.forms.dois_text
-    dois_upload = request.forms.dois_upload
-
-    full_meta = request.forms.full_meta
-
-    print(email)
-    print(resolver)
-    print(dois_text)
-    print(dois_upload)
-    print(full_meta)
-
-    dois_list: list = get_list_from_str(dois_text)
-    invalid_dois = validators.get_invalid_dois(dois_list)
-
-    print(dois_list)
-    print(invalid_dois)
-
-    if invalid_dois:
-        dois = {"dois": {"ok": False, "error": f"Invalid Dois given: {', '.join(invalid_dois)}"}}
-    else:
-        dois = {"dois": {"ok": True, "value": dois_text}}
-
-    result = validators.validate_form(request.forms)
+    """
+    result = validate_form(request.forms)
     print(result)
 
-    result.update(dois)
-    print(result)
-
-    errors = validators.get_errors(result)
+    errors = get_errors(result)
 
     print(errors)
 
     if errors:
         return {"success": False, "message": "Invalid form", "errors": errors}
 
-    output_filename = create_log_filename(f"checks_to_{resolver}")
+    output_filename = create_log_filename(f"checks_to_{result['resolver']['value']}")
     output_path = directories["QUEUE_DIR"] / output_filename
 
-    if dois_list:
-        with open(output_path, mode="w", newline="") as file:
-            writer = csv.writer(file)
+    with open(output_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
 
-            writer.writerow([email])
-            writer.writerow([resolver])
+        writer.writerow([result["email"]["value"]])
+        writer.writerow([result["resolver"]["value"]])
 
-            for doi in dois_list:
-                writer.writerow([doi])
+        for doi in result["dois"]["value"]:
+            writer.writerow([doi])
 
     # check if queue is running, by checking lockfile exists
     lock_filepath = get_lock_filepath(APP_DIR)
