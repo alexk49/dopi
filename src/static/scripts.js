@@ -22,38 +22,24 @@ function countLines(event) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
 
-  const doisText = document.getElementById('dois_text');
-  doisText.addEventListener('input', countLines);
+async function fetchFormResponse(url, formData) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+    });
+    return await response.json();
+}
 
-  const fileRadio = document.getElementById('file_radio');
-  const textRadio = document.getElementById('text_radio');
 
-  fileRadio.addEventListener('click', toggleDoiInputs);
-  textRadio.addEventListener('click', toggleDoiInputs);
-
-  document.getElementById('doi_submit_form').addEventListener('submit', async function(e) {
-
-    e.preventDefault();
-
+async function handleFormSubmission(errorsDiv, messageDiv) {
     const form = this
     const formData = new FormData(form);
-
-    const errorsDiv = document.getElementById('errors');
-    const messageDiv = document.getElementById('message');
 
     errorsDiv.textContent = ''
     errorsDiv.innerHTML = ''
 
-    const response = await fetch('/submit', {
-        method: 'POST',
-        body: formData
-    });
-
-    const result = await response.json();
-
-    console.log("RESULT")
+    result = await fetchFormResponse("/submit", formData)
     console.log(result)
 
     messageDiv.textContent = result.message;
@@ -74,6 +60,24 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(errorList)
         errorsDiv.innerHTML = `<ul>${errorList}</ul>`;
     }
-  });
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+
+  const doisText = document.getElementById('dois_text');
+  doisText.addEventListener('input', countLines);
+
+  const fileRadio = document.getElementById('file_radio');
+  const textRadio = document.getElementById('text_radio');
+
+  fileRadio.addEventListener('click', toggleDoiInputs);
+  textRadio.addEventListener('click', toggleDoiInputs);
+
+  const errorsDiv = document.getElementById('errors');
+  const messageDiv = document.getElementById('message');
+
+  document.getElementById('doi_submit_form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    handleFormSubmission(errorsDiv, messageDiv);
+  });
 });
