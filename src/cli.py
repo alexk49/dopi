@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from app import run_app
-from helpers import fetch_dois_data, read_dois_from_csv
+from helpers import fetch_dois_data, read_full_csv_data
 from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
 
@@ -31,10 +31,15 @@ def set_arg_parser() -> argparse.ArgumentParser:
         "-w",
         "--write-to-csv",
         action="store_true",
-        help="If passed output results will be written to csv",
-    )
+        help="If passed output results will be written to csv",)
 
     group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-cc",
+        "--complete-csv",
+        type=str,
+        help="Pass all data via csv with email, host site and doi all written in csv",
+    )
     group.add_argument(
         "-dois",
         "--dois",
@@ -76,10 +81,8 @@ def run_command(command):
 def run_linters():
     run_command(["ruff", "check", ".", "--fix"])
 
-    # Run ruff format
     run_command(["ruff", "format", "."])
 
-    # Run mypy
     run_command(["mypy", "."])
 
 
@@ -91,6 +94,8 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    resolving_host = args.resolving_host
+
     if args.run_app:
         run_app()
         sys.exit()
@@ -98,6 +103,12 @@ def main():
     if args.lint:
         run_linters()
         sys.exit()
+
+    if args.complete_csv:
+        print("getting email, resolver and dois from csv")
+        print(args.complete_csv)
+        email, resolving_host, dois = read_full_csv_data(args.complete_csv)
+        print(email, resolving_host, dois)
 
     if args.doi:
         print("single doi passed to validate")
@@ -107,10 +118,8 @@ def main():
         dois = args.dois.split(",")
 
     if args.file:
-        dois = read_dois_from_csv(args.file)
+        dois = read_full_csv_data(args.file)
         print(dois)
-
-    resolving_host = args.resolving_host
 
     if not resolving_host:
         try:

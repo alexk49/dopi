@@ -2,6 +2,7 @@ import pprint
 import sys
 from pathlib import Path
 
+from config import Config
 from helpers import (
     create_lockfile,
     fetch_dois_data,
@@ -12,23 +13,7 @@ from helpers import (
 )
 
 
-def setup_directories(script_dir):
-    QUEUE_DIR = "queue"
-    FAILURES_DIR = "failures"
-    COMPLETE_DIR = "complete"
-
-    directories = {
-        "QUEUE_DIR": script_dir / QUEUE_DIR,
-        "FAILURES_DIR": script_dir / FAILURES_DIR,
-        "COMPLETE_DIR": script_dir / COMPLETE_DIR,
-    }
-
-    for dir_path in directories.values():
-        dir_path.mkdir(exist_ok=True)
-    return directories
-
-
-def process_csv_file(file, directories):
+def process_csv_file(file: Path, directories: dict) -> bool:
     """Process a single CSV file with DOIs."""
     try:
         print(f"Processing {file}")
@@ -80,7 +65,7 @@ def process_queue(app_dir=None):
         print("UNABLE TO CREATE LOCK FILE EXITING PROGRAM")
         sys.exit(1)
 
-    directories = setup_directories(script_dir)
+    directories = Config.directories 
 
     try:
         while True:

@@ -4,17 +4,19 @@ import socket
 import ssl
 import time
 
+from config import Config
+
 
 class Client:
-    def __init__(self, host, timeout=30, max_retries=3, retry_delay=2, headers=None):
+    def __init__(self, timeout=30, max_retries=3, retry_delay=2, host=None, headers=None):
         """
         Host should be passed without protocol.
         """
-        self.host = host
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay
-        self.headers = headers
+        self.host = host or Config.API_HOST
+        self.headers = headers or Config.HEADERS
         self.context = ssl.create_default_context()
         self.conn = None
 

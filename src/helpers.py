@@ -7,18 +7,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 from http_client import Client
-
-
-API_HOST = "api.crossref.org"
-
-# crossref api asks to mailto attribute in user agent
-EMAIL_ADDRESS = os.environ["EMAIL_ADDRESS"]
-
-HEADERS = {
-    "Content-type": "application/json",
-    "User-Agent": f"bulk-doi-checker mailto:{EMAIL_ADDRESS}",
-    "Mailto": EMAIL_ADDRESS,
-}
+from config import Config
 
 
 def get_list_from_str(dois: str) -> list:
@@ -37,7 +26,7 @@ def fetch_dois_data(dois: List[str], resolving_host: str = "", full_metadata: bo
     """
     results = []
 
-    with Client(host=API_HOST, headers=HEADERS) as client:
+    with Client() as client:
         for doi in dois:
             result = process_single_doi(client, doi, resolving_host, full_metadata)
             results.append(result)
@@ -112,11 +101,9 @@ def validate_resolving_url(doi: str, response_dict: dict, resolving_host: str, r
 
 """ Functions for lockfile """
 
-LOCK_FILE = "doi_processing.lock"
-
 
 def get_lock_filepath(present_working_dir: Path) -> Path:
-    filepath = present_working_dir / LOCK_FILE
+    filepath = present_working_dir / Config.LOCK_FILE
     return filepath
 
 
@@ -166,6 +153,21 @@ def read_dois_from_csv(path_to_csv: str | os.PathLike) -> list:
 
 
 """ Functions for writing to csv files """
+
+
+def add_csv_to_queue(queue_dir: Path, resolver_host: str, email: str, dois: list) -> Path:
+    output_filename = create_log_filename(f"checks_to_{resolver_host}")
+    output_path = queue_dir / output_filename
+
+    with open(output_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+
+        writer.writerow([email])
+        writer.writerow([resolver_host])
+
+        for doi in dois:
+            writer.writerow([doi])
+    return output_path
 
 
 def create_log_filename(file_str: str, ext=".csv") -> str:

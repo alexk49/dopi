@@ -40,6 +40,8 @@ def get_invalid_dois(doi_list: list[str]) -> list[str]:
 
 def validate_dois(dois_text):
     dois_list = get_list_from_str(dois_text)
+    print(dois_list)
+    print(type(dois_list))
     invalid_dois = get_invalid_dois(dois_list)
 
     if invalid_dois:
@@ -57,7 +59,9 @@ def chain_validators(value, *validators) -> dict:
         result = validator(value)
         if not result["ok"]:
             return result
-    return {"ok": True, "value": value}
+    print(f"VALIDATING VALUE: {value}")
+    print(f"RESULTING VALUE: {result['value']}")
+    return {"ok": True, "value": result["value"]}
 
 
 def is_valid_input_method(value):
