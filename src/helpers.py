@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 from http_client import Client
-from config import Config
 
 
 def get_list_from_str(dois: str) -> list:
@@ -102,12 +101,7 @@ def validate_resolving_url(doi: str, response_dict: dict, resolving_host: str, r
 """ Functions for lockfile """
 
 
-def get_lock_filepath(present_working_dir: Path) -> Path:
-    filepath = present_working_dir / Config.LOCK_FILE
-    return filepath
-
-
-def create_lockfile(filepath) -> bool:
+def create_lockfile(filepath: Path) -> bool:
     try:
         if filepath.is_file():
             return True
@@ -184,7 +178,7 @@ def create_log_filename(file_str: str, ext=".csv") -> str:
 
 def write_resolving_host_summary_to_csv(
     resolving_host, results: list, output_dir: Path = Path("output"), directories: dict = {}
-) -> None:
+) -> Path:
     for res in results:
         res.pop("full_metadata", None)
 
@@ -200,6 +194,7 @@ def write_resolving_host_summary_to_csv(
         writer.writeheader()
         for row in results:
             writer.writerow(row)
+    return summary_filepath
 
 
 def write_full_metadata_to_csv(results: list, output_dir: Path = Path("output"), directories: dict = {}) -> None:

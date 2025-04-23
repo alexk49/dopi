@@ -2,7 +2,7 @@ from bottle import default_app, response, request, static_file
 
 from config import Config
 from validators import validate_form, get_errors
-from helpers import add_csv_to_queue, get_lock_filepath 
+from helpers import add_csv_to_queue
 
 
 # app = Bottle()
@@ -34,12 +34,15 @@ def post_submit():
     if errors:
         return {"success": False, "message": "Invalid form", "errors": errors}
 
-    output_path = add_csv_to_queue(queue_dir=Config.directories["QUEUE_DIR"], resolver_host=result["resolver"]["value"], email=result["email"]["value"], dois=result["dois"]["value"])
+    output_path = add_csv_to_queue(
+        queue_dir=Config.directories["QUEUE_DIR"],
+        resolver_host=result["resolver"]["value"],
+        email=result["email"]["value"],
+        dois=result["dois"]["value"],
+    )
 
     # check if queue is running, by checking lockfile exists
-    lock_filepath = get_lock_filepath(Config.APP_DIR)
-
-    if lock_filepath.is_file():
+    if Config.LOCK_FILEPATH.is_file():
         print("process already running, file added to the queue dir at %s", output_path)
     else:
         print("starting queue process")

@@ -31,7 +31,8 @@ def set_arg_parser() -> argparse.ArgumentParser:
         "-w",
         "--write-to-csv",
         action="store_true",
-        help="If passed output results will be written to csv",)
+        help="If passed output results will be written to csv",
+    )
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -94,8 +95,6 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    resolving_host = args.resolving_host
-
     if args.run_app:
         run_app()
         sys.exit()
@@ -103,6 +102,8 @@ def main():
     if args.lint:
         run_linters()
         sys.exit()
+
+    resolving_host = args.resolving_host
 
     if args.complete_csv:
         print("getting email, resolver and dois from csv")

@@ -3,17 +3,32 @@ import sys
 from pathlib import Path
 
 from config import Config
+from emailer import Emailer
 from helpers import (
     create_lockfile,
     fetch_dois_data,
-    get_lock_filepath,
     read_full_csv_data,
     write_resolving_host_summary_to_csv,
     write_full_metadata_to_csv,
 )
 
 
-def process_csv_file(file: Path, directories: dict) -> bool:
+def email_summary_csv(recipient: str, filepath: Path):
+    mailer = Emailer(sender_email=Config.EMAIL_ADDRESS, email_password=Config.EMAIL_PASSWORD)
+
+    message_subject = "Results for Doi checks"
+    message_body = "Please see attached for the results of your checks"
+
+    message = mailer.create_email_message(
+        recipient_email=recipient, message_subject=message_subject, message_body=message_body
+    )
+
+    message = mailer.add_attachment(message=message, filepath=filepath)
+
+    mailer.send_email(message)
+
+
+def process_csv_file(file: Path, directories: dict, email_notification: bool = True) -> bool:
     """Process a single CSV file with DOIs."""
     try:
         print(f"Processing {file}")
@@ -24,10 +39,11 @@ def process_csv_file(file: Path, directories: dict) -> bool:
 
         write_full_metadata_to_csv(results, directories=directories)
 
-        write_resolving_host_summary_to_csv(resolving_host, results, directories=directories)
+        summary_filepath = write_resolving_host_summary_to_csv(resolving_host, results, directories=directories)
 
-        # TODO: Email results
-        print("Emailing results (TO BE IMPLEMENTED)")
+        if email_notification:
+            print("Emailing results")
+            email_summary_csv(recipient=email, filepath=summary_filepath)
 
         print(f"{file} has processed successfully, deleting file")
         file.unlink()
@@ -50,22 +66,13 @@ def process_files(files, directories):
             file.replace(output_path)
 
 
-def process_queue(app_dir=None):
+def process_queue(lock_filepath: Path = Config.LOCK_FILEPATH, directories: dict = Config.directories):
     """
     This should be run as a subprocess by the main app
     """
-    if not app_dir:
-        script_dir = Path().resolve()
-    else:
-        script_dir = app_dir
-
-    lock_filepath = get_lock_filepath(script_dir)
-
     if not create_lockfile(lock_filepath):
-        print("UNABLE TO CREATE LOCK FILE EXITING PROGRAM")
+        print(f"UNABLE TO CREATE LOCK FILE {lock_filepath} EXITING PROGRAM")
         sys.exit(1)
-
-    directories = Config.directories 
 
     try:
         while True:
