@@ -29,7 +29,6 @@ def fetch_dois_data(dois: List[str], resolving_host: str = "", full_metadata: bo
         for doi in dois:
             result = process_single_doi(client, doi, resolving_host, full_metadata)
             results.append(result)
-
     return results
 
 
@@ -75,7 +74,7 @@ def get_resolving_url_for_doi(response_dict: dict) -> dict | str:
     except Exception as err:
         err_msg = f"unable to find resolving URL: {err}"
         print(err_msg)
-        return err_msg
+        return ""
 
 
 def validate_resolving_url(doi: str, response_dict: dict, resolving_host: str, result: dict) -> dict:
