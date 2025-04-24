@@ -7,7 +7,8 @@ import sys
 from pathlib import Path
 
 from app import run_app
-from helpers import fetch_dois_data, read_full_csv_data
+from crossref import fetch_dois_data
+from helpers import read_full_csv_data
 from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
 

@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 
 from config import Config
+from crossref import fetch_dois_data
 from emailer import Emailer
 from helpers import (
     create_lockfile,
-    fetch_dois_data,
     read_full_csv_data,
     write_resolving_host_summary_to_csv,
     write_full_metadata_to_csv,

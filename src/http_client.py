@@ -44,7 +44,8 @@ class Client:
         self.conn = None
 
     def request(self, url, method="GET", headers={}):
-        headers = self.headers or {}
+        if headers == {}:
+            headers = self.headers
 
         for attempt in range(1, self.max_retries + 1):
             try:
