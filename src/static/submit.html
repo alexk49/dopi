@@ -32,25 +32,15 @@
           To check https://www.example.com enter resolving host as: example.com
         </div>
       </div>
-      <fieldset class="form-group">
-        <div class="legend-with-radios">
-        <legend>DOIs to check:</legend>
-        <label>
-          <input type="radio" name="input_method" value="dois_text" id="text_radio" checked />Text Entry
-        </label>
-        <label>
-          <input type="radio" name="input_method" value="dois_upload" id="file_radio" />Upload a file
-        </label>
+      <div class="form-group">
+        <div class="label-input-row">
+          <label for="dois_text">DOIs to check:</label>
+          <div id="dois_text_wrapper">
+            <textarea id="dois_text" name="dois_text" rows="5" cols="50" placeholder="Enter one Doi per line"></textarea>
+            <div id="dois_text_counter" class="tooltip" aria-live="polite"></div>
+          </div>
         </div>
-      </fieldset>
-        <div id="dois_text_wrapper">
-          <textarea id="dois_text" name="dois_text" rows="5" cols="40" placeholder="Enter one Doi per line"></textarea>
-          <div id="dois_text_counter" class="tooltip" aria-live="polite"></div>
-        </div>
-        <div id="dois_upload_wrapper">
-          <input id="dois_upload" type="file" name="dois_upload" />
-          <div id="file_upload_help" class="tooltip">Upload a .csv file with no header information and dois in the first column only.</div>
-        </div>
+      </div>
       <div id="submit-btn-container" class="btn-container">
         <button id="submit-btn" class="submit-btn" type="submit" value="submit">Submit</button>
       </div>
