@@ -28,8 +28,6 @@ def submit():
 def post_submit():
     result = validate_form(request.forms)
     errors = get_errors(result)
-    print(result)
-    print(errors)
 
     if errors:
         return {"success": False, "message": "Invalid form", "errors": errors}

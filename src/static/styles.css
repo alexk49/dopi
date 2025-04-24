@@ -95,3 +95,8 @@ fieldset.form-group legend {
   padding: 0.1em; 
   margin-right: 0.5em;
 }
+
+
+.blank-field {
+  display: none;
+}

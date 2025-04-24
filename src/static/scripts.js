@@ -2,10 +2,14 @@ function countLines(event) {
   const counterEl = document.getElementById('dois_text_counter');
 
   const textarea = event.currentTarget;
-  const lines = textarea.value.split("\n");
+  const lines = textarea.value.split("\n").filter(line => line.trim() !== "");
   const lineCount = lines.length;
 
-  if (lineCount !== 1) {
+  if (lineCount === 0) {
+    counterEl.textContent = "";
+  } else if (lineCount === 1) {
+    counterEl.textContent = "1 Doi added";
+  } else {
     counterEl.textContent = `${lineCount} Dois added`;
   }
 }
@@ -20,21 +24,21 @@ async function fetchFormResponse(url, formData) {
 }
 
 
-async function handleFormSubmission(errorsDiv, messageDiv) {
-    const form = this
+async function handleFormSubmission(form, errorsDiv, messageDiv) {
     const formData = new FormData(form);
 
     errorsDiv.textContent = ''
     errorsDiv.innerHTML = ''
 
-    result = await fetchFormResponse("/submit", formData)
-    console.log(result)
+    const result = await fetchFormResponse("/submit", formData)
 
     messageDiv.textContent = result.message;
 
     if (result.success) {
         messageDiv.style.color = 'green';
         form.reset();
+
+        doisText.textContent = ''
         errorsDiv.innerHTML = ''
     } else {
         messageDiv.style.color = 'red';
@@ -44,19 +48,23 @@ async function handleFormSubmission(errorsDiv, messageDiv) {
         const errorList = Object.entries(result.errors).map(
           ([field, msg]) => `<li><strong>${field}</strong>: ${msg}</li>`
 ).join('');
-        console.log("ERRORS: ")
-        console.log(errorList)
         errorsDiv.innerHTML = `<ul>${errorList}</ul>`;
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const doisText = document.getElementById('dois_text');
+  doisText.addEventListener('input', countLines);
+
   const errorsDiv = document.getElementById('errors');
   const messageDiv = document.getElementById('message');
+  const doiForm = document.getElementById('doi_submit_form');
 
-  document.getElementById('doi_submit_form').addEventListener('submit', async function(e) {
+  doiForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    handleFormSubmission(errorsDiv, messageDiv);
+    messageDiv.textContent = ''
+
+    handleFormSubmission(doiForm, errorsDiv, messageDiv, doisText);
   });
 });

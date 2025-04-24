@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 
-def setup_directories(app_dir):
+def setup_directories(app_dir: Path) -> dict:
     QUEUE_DIR = "queue"
     FAILURES_DIR = "failures"
     COMPLETE_DIR = "complete"

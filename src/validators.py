@@ -9,6 +9,12 @@ def is_required(value):
     return {"ok": False, "error": "This field is required."}
 
 
+def must_be_empty(value):
+    if not value:
+        return {"ok": True, "value": value}
+    return {"ok": False, "error": "This field must be empty."}
+
+
 def is_email(value):
     if "@" in value and "." in value:
         return {"ok": True, "value": value}
@@ -64,12 +70,6 @@ def chain_validators(value, *validators) -> dict:
     return {"ok": True, "value": result["value"]}
 
 
-def is_valid_input_method(value):
-    if value in {"dois_text", "dois_upload"}:
-        return {"ok": True, "value": value}
-    return {"ok": False, "error": "Invalid DOI input method selected."}
-
-
 def validate_form(data) -> dict:
     """
     Runs all form validation and returns dict of results
@@ -79,13 +79,12 @@ def validate_form(data) -> dict:
     {'email': {'ok': True, 'value': 'someone@email.com'}, 'resolver': {'ok': True, 'value': 'anotherexample.com'}, 'dois_text': {'ok': True, 'value': 'doi-value'}}
     """
     results = {
-        "input_method": chain_validators(data.get("input_method"), is_required, is_valid_input_method),
         "email": chain_validators(data.get("email"), is_required, is_email),
         "resolver": chain_validators(data.get("resolving_host"), is_required, is_host),
+        "dois": chain_validators(data.get("dois_text"), is_required, validate_dois),
+        "blank_field": chain_validators(data.get("blank_field"), must_be_empty),
     }
-
-    if results["input_method"]["ok"] and results["input_method"]["value"] == "dois_text":
-        results["dois"] = chain_validators(data.get("dois_text"), is_required, validate_dois)
+    print(results)
     return results
 
 

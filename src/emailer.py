@@ -11,7 +11,7 @@ class Emailer:
         self.sender_email = sender_email
         self.email_password = email_password
 
-    def connect_to_smtp_server(self):
+    def connect_to_smtp_server(self) -> smtplib.SMTP:
         """Establishes connection to SMTP server and returns the server object"""
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
