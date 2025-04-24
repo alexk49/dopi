@@ -5,7 +5,6 @@ from validators import validate_form, get_errors
 from helpers import add_csv_to_queue
 
 
-# app = Bottle()
 app = default_app()
 
 
@@ -14,7 +13,12 @@ def serve_static(filename: str):
     return static_file(filename, root=Config.STATIC_DIR)
 
 
-@app.route("/")
+@app.route("/complete/<filename:path>")
+def download_complete_file(filename: str):
+    return static_file(filename, root=Config.directories["COMPLETE_DIR"], download=filename)
+
+
+@app.get("/")
 def home():
     return static_file("index.html", root=Config.STATIC_DIR)
 
@@ -22,6 +26,23 @@ def home():
 @app.get("/submit")
 def submit():
     return static_file("submit.html", root=Config.STATIC_DIR)
+
+
+@app.get("/queue")
+def queue_count():
+    queue_dir = Config.directories["QUEUE_DIR"]
+    queue_count = len(list(queue_dir.glob("*.csv")))
+    response.content_type = "application/json"
+    return {"queue_count": str(queue_count)}
+
+
+@app.get("/completed")
+def completed():
+    completed_dir = Config.directories["COMPLETE_DIR"]
+    completed_files = list(completed_dir.glob("*.csv"))
+    filenames = [file.name for file in completed_files]
+    response.content_type = "application/json"
+    return {"completed": filenames}
 
 
 @app.post("/submit")

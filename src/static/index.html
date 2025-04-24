@@ -5,6 +5,7 @@
   <title>dopi - home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/static/styles.css" rel="stylesheet" />
+  <script type="module" src="/static/scripts.js"></script>
 </head>
 <body>
   <main>
@@ -12,6 +13,8 @@
     <p>Check your DOIs resolve with dopi.</p>
     <p>Submit a list of DOIs via the <a href="/submit">submit page</a> to have them added to the queue. Once they've been processed you'll be emailed the results. </p>
     <p>Your email will only be stored in a .csv file on the server until the file has been processed, at which point the results of your submission will be kept for longer incase of issues but your email will not be.</p>
+    <div id="queue_counter"></div>
+    <div id="completed_files"></div>
   </main>
 </body>
 </html>

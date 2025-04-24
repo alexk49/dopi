@@ -68,7 +68,7 @@ def process_single_doi(client: Client, doi: str, resolving_host: str, full_metad
     return result
 
 
-def get_resolving_url_for_doi(response_dict: dict) -> dict | str:
+def get_resolving_url_for_doi(response_dict: dict) -> str:
     try:
         return response_dict["message"]["resource"]["primary"]["URL"]
     except Exception as err:

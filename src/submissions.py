@@ -13,7 +13,7 @@ from helpers import (
 )
 
 
-def email_summary_csv(recipient: str, filepath: Path):
+def email_summary_csv(recipient: str, filepath: Path) -> None:
     mailer = Emailer(sender_email=Config.EMAIL_ADDRESS, email_password=Config.EMAIL_PASSWORD)
 
     message_subject = "Results for Doi checks"
@@ -55,7 +55,7 @@ def process_csv_file(file: Path, directories: dict, email_notification: bool = T
         return False
 
 
-def process_files(files, directories):
+def process_files(files: list[Path], directories: dict):
     """Process all CSV files in the queue directory."""
     for file in files:
         if file.is_file() and file.suffix == ".csv":

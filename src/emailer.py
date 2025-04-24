@@ -45,7 +45,7 @@ class Emailer:
         message.attach(part)
         return message
 
-    def send_email(self, message: MIMEMultipart):
+    def send_email(self, message: MIMEMultipart) -> None:
         """Sends email using external SMTP server with authentication"""
         server = None
         try:

@@ -14,6 +14,12 @@ function countLines(event) {
   }
 }
 
+async function fetchServerData(url) {
+    const response = await fetch(url, {
+        method: 'GET'
+    });
+    return await response.json()
+}
 
 async function fetchFormResponse(url, formData) {
     const response = await fetch(url, {
@@ -23,6 +29,33 @@ async function fetchFormResponse(url, formData) {
     return await response.json();
 }
 
+async function updateQueueCounter(queueCounterEl) {
+    const result = await fetchServerData("/queue")
+    const queue_count = result.queue_count
+    
+    if (queue_count) {
+      queueCounterEl.innerHTML = `<strong>Status:</strong> There are ${queue_count} files in the queue to be processed.`
+    }
+}
+
+async function updateCompletedFiles(completedFilesEl) {
+    const result = await fetchServerData("/completed")
+    const completed = result.completed
+    
+    if (completed && Array.isArray(completed)) {
+          completedFilesEl.innerHTML = `<strong>Completed files:</strong> These files have been completed:
+        <ul id="completed-files-list">
+        </ul>`;
+
+          const ulElement = document.getElementById("completed-files-list");
+          
+          completed.forEach(filename => {
+            const li = document.createElement("li");
+            li.innerHTML = `<a href="/complete/${filename}">${filename}</a>`;
+            ulElement.appendChild(li);
+          });
+    }
+}
 
 async function handleFormSubmission(form, errorsDiv, messageDiv) {
     const formData = new FormData(form);
@@ -37,7 +70,6 @@ async function handleFormSubmission(form, errorsDiv, messageDiv) {
     if (result.success) {
         messageDiv.style.color = 'green';
         form.reset();
-
         doisText.textContent = ''
         errorsDiv.innerHTML = ''
     } else {
@@ -54,17 +86,34 @@ async function handleFormSubmission(form, errorsDiv, messageDiv) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const queueCounter = document.getElementById('queue_counter');
+
+  if (queueCounter !== null) {
+    updateQueueCounter(queueCounter)
+  }
+
+  const completedFilesEl = document.getElementById('completed_files');
+
+  if (completedFilesEl !== null) {
+    updateCompletedFiles(completedFilesEl)
+  }
+
   const doisText = document.getElementById('dois_text');
-  doisText.addEventListener('input', countLines);
+
+  if (doisText !== null) {
+    doisText.addEventListener('input', countLines);
+  }
 
   const errorsDiv = document.getElementById('errors');
   const messageDiv = document.getElementById('message');
   const doiForm = document.getElementById('doi_submit_form');
 
-  doiForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    messageDiv.textContent = ''
+  if (doiForm !== null) {
+    doiForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      messageDiv.textContent = ''
 
-    handleFormSubmission(doiForm, errorsDiv, messageDiv, doisText);
-  });
+      handleFormSubmission(doiForm, errorsDiv, messageDiv, doisText);
+    });
+  }
 });

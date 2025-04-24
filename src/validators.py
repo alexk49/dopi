@@ -1,32 +1,32 @@
 import re
 
 from helpers import get_list_from_str
+from typing import Any
 
 
-def is_required(value):
+def is_required(value: Any) -> dict:
     if value:
         return {"ok": True, "value": value}
     return {"ok": False, "error": "This field is required."}
 
 
-def must_be_empty(value):
+def must_be_empty(value: Any) -> dict:
     if not value:
         return {"ok": True, "value": value}
     return {"ok": False, "error": "This field must be empty."}
 
 
-def is_email(value):
+def is_email(value: str) -> dict:
     if "@" in value and "." in value:
         return {"ok": True, "value": value}
     return {"ok": False, "error": "Invalid email address."}
 
 
-def is_host(value):
+def is_host(value: str) -> dict:
     if "." not in value:
         return {"ok": False, "error": "Invalid host"}
     if "http" in value:
         return {"ok": False, "error": "Host should not contain protocol. Remove http from host."}
-
     return {"ok": True, "value": value}
 
 
@@ -44,15 +44,12 @@ def get_invalid_dois(doi_list: list[str]) -> list[str]:
     return [doi for doi in doi_list if not is_doi(doi)]
 
 
-def validate_dois(dois_text):
-    dois_list = get_list_from_str(dois_text)
-    print(dois_list)
-    print(type(dois_list))
+def validate_dois(dois_text: str) -> dict:
+    dois_list: list = get_list_from_str(dois_text)
     invalid_dois = get_invalid_dois(dois_list)
 
     if invalid_dois:
         return {"ok": False, "error": f"Invalid DOIs given: {', '.join(invalid_dois)}"}
-
     return {"ok": True, "value": dois_list}
 
 
@@ -70,7 +67,7 @@ def chain_validators(value, *validators) -> dict:
     return {"ok": True, "value": result["value"]}
 
 
-def validate_form(data) -> dict:
+def validate_form(data: dict) -> dict:
     """
     Runs all form validation and returns dict of results
 
@@ -84,11 +81,10 @@ def validate_form(data) -> dict:
         "dois": chain_validators(data.get("dois_text"), is_required, validate_dois),
         "blank_field": chain_validators(data.get("blank_field"), must_be_empty),
     }
-    print(results)
     return results
 
 
-def get_errors(validated_data):
+def get_errors(validated_data: dict) -> dict:
     """
     Filter through results of validate_form dict
     to find any errors

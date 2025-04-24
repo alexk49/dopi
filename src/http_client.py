@@ -77,11 +77,9 @@ class Client:
 
     def get_json_dict_from_response(self, response_str: str) -> dict | str:
         """
-        This will take the result from get_response_data
-        and convert into dict
+        This will take the result from get_response_data and convert into dict
         """
         try:
             return json.loads(response_str)
         except Exception as err:
-            err_msg = f"ERROR reading json from {response_str}, {err}"
-            return err_msg
+            return f"ERROR reading json from {response_str}, {err}"
