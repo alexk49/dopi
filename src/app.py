@@ -23,11 +23,6 @@ def home():
     return static_file("index.html", root=Config.STATIC_DIR)
 
 
-@app.get("/submit")
-def submit():
-    return static_file("submit.html", root=Config.STATIC_DIR)
-
-
 @app.get("/queue")
 def queue_count():
     queue_dir = Config.directories["QUEUE_DIR"]

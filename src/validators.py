@@ -62,8 +62,6 @@ def chain_validators(value, *validators) -> dict:
         result = validator(value)
         if not result["ok"]:
             return result
-    print(f"VALIDATING VALUE: {value}")
-    print(f"RESULTING VALUE: {result['value']}")
     return {"ok": True, "value": result["value"]}
 
 

@@ -33,8 +33,10 @@ async function updateQueueCounter(queueCounterEl) {
     const result = await fetchServerData("/queue")
     const queue_count = result.queue_count
     
-    if (queue_count) {
-      queueCounterEl.innerHTML = `<strong>Status:</strong> There are ${queue_count} files in the queue to be processed.`
+    if (queue_count === '1') {
+      queueCounterEl.innerHTML = `There is ${queue_count} file in the queue to be processed.`
+    } else {
+      queueCounterEl.innerHTML = `There are ${queue_count} files in the queue to be processed.`
     }
 }
 
@@ -43,7 +45,7 @@ async function updateCompletedFiles(completedFilesEl) {
     const completed = result.completed
     
     if (completed && Array.isArray(completed)) {
-          completedFilesEl.innerHTML = `<strong>Completed files:</strong> These files have been completed:
+          completedFilesEl.innerHTML = `
         <ul id="completed-files-list">
         </ul>`;
 
@@ -86,16 +88,35 @@ async function handleFormSubmission(form, errorsDiv, messageDiv) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const showQueueButton = document.getElementById('show_queue_counter');
   const queueCounter = document.getElementById('queue_counter');
 
-  if (queueCounter !== null) {
-    updateQueueCounter(queueCounter)
+  if (showQueueButton !== null && queueCounter !== null) {
+    showQueueButton.addEventListener('click', async () => {
+
+      if (queueCounter.hidden) {
+        await updateQueueCounter(queueCounter);
+        queueCounter.hidden = false;
+      }
+      else {
+        queueCounter.hidden = true;
+      }
+    });
   }
-
+  
+  const showCompletedButton = document.getElementById('show_completed_files');
   const completedFilesEl = document.getElementById('completed_files');
+  if (showCompletedButton !== null && completedFilesEl !== null) {
+    showCompletedButton.addEventListener('click', async () => {
 
-  if (completedFilesEl !== null) {
-    updateCompletedFiles(completedFilesEl)
+      if (completedFilesEl.hidden) {
+        await updateCompletedFiles(completedFilesEl);
+        completedFilesEl.hidden = false;
+      }
+      else {
+        completedFilesEl.hidden = true;
+      }
+    });
   }
 
   const doisText = document.getElementById('dois_text');
