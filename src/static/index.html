@@ -2,43 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>dopi</title>
+  <title>dopi - doi checker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/static/styles.css" rel="stylesheet" />
-  <script type="module" src="/static/scripts.js"></script>
+  <script src="/static/scripts.js" defer></script>
+  <link rel="icon" href="/static/favicon.ico">
+  <meta name="description" content="Check if your DOIs resolve correctly with dopi">
 </head>
 <body>
+    <header>
+      <h1>dopi</h1>
+      <p>Check your DOIs resolve with dopi.</p>
+    </header>
   <main>
-    <h1>dopi</h1>
-    <p>Check your DOIs resolve with dopi.</p>
+    <section aria-labelledby="intro-section">
     <p>Submit a list of DOIs to have them added to the queue.</p>
     <p>Once they've been processed you'll be emailed the results.</p>
-    <button id="show_queue_counter" class="status-btn">Queue Status</button>
-    <div id="queue_counter" class="status-container" hidden></div>
-    <button id="show_completed_files" class="status-btn">Completed Files</button>
-    <div id="completed_files" class="status-container" hidden></div>
-    <h2>Submit</h2>
+    </section>
+
+    <section aria-labelledby="status-section">
+    <details id="show_queue_counter">
+        <summary aria-controls="queue_counter" aria-expanded="false">Queue Status</summary>
+        <div id="queue_counter" class="status-container" hidden aria-live="polite"></div>
+    </details>
+    <details id="show_completed_files">
+        <summary aria-controls="completed_files" aria-expanded="false">Completed Files</summary>
+        <div id="completed_files" class="status-container" hidden aria-live="polite"></div>
+    </details>
+    </section>
+
+  <section aria-labelledby="submission-section">
     <div id="message" class="result-message" role="status" aria-live="polite"></div>
     <div id="errors" class="error-messages" role="status" aria-live="polite"></div>
+
     <form id="doi_submit_form" action="/submit" method="post" class="submit-form">
+    <fieldset>
+      <legend>Submit DOIs to check</legend>
       <div class="form-group">
         <div class="label-input-row">
           <label for="email">Enter your email:</label>
-          <input type="email" name="email" id="email" required aria-describedby="email_helper" />
+          <input type="email" name="email" id="email" required aria-describedby="email_helper" autocomplete="email" />
         </div>
         <div class="tooltip" id="email_helper" role="tooltip">
           Your email will be stored on the server until your submission is processed.
         </div>
       </div>
+
       <div class="form-group">
         <div class="label-input-row">
           <label for="resolving_host_input">Enter your resolving host:</label>
-          <input type="text" name="resolving_host" id="resolving_host_input" required aria-describedby="host_helper" />
+          <input type="text" name="resolving_host" id="resolving_host_input" required aria-describedby="host_helper" autocomplete="url" />
         </div>
         <div class="tooltip" id="host_helper" role="tooltip">
           To check https://www.example.com enter resolving host as: example.com
         </div>
       </div>
+
       <div class="form-group">
         <div class="label-input-row">
           <label for="dois_text">DOIs to check:</label>
@@ -48,10 +67,13 @@
           </div>
         </div>
       </div>
+      </fieldset>
+
     <div id="blank-field" class="blank-field" aria-hidden="true">
         <label for="blank_field">Leave this field blank</label>
         <input type="text" name="blank_field" id="blank_field" tabindex="-1" autocomplete="off">
     </div>
+
       <div id="submit-btn-container" class="btn-container">
         <button id="submit-btn" class="submit-btn" type="submit" value="submit">Submit</button>
       </div>

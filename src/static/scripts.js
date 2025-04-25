@@ -88,6 +88,7 @@ async function handleFormSubmission(form, errorsDiv, messageDiv) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* set up queue toggle */
   const showQueueButton = document.getElementById('show_queue_counter');
   const queueCounter = document.getElementById('queue_counter');
 
@@ -104,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  /* set up complete files toggle */
   const showCompletedButton = document.getElementById('show_completed_files');
   const completedFilesEl = document.getElementById('completed_files');
   if (showCompletedButton !== null && completedFilesEl !== null) {
@@ -119,12 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* set up doi counter */
   const doisText = document.getElementById('dois_text');
 
   if (doisText !== null) {
     doisText.addEventListener('input', countLines);
   }
 
+  /* set up form handler / submission */
   const errorsDiv = document.getElementById('errors');
   const messageDiv = document.getElementById('message');
   const doiForm = document.getElementById('doi_submit_form');
