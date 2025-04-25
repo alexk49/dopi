@@ -2,129 +2,62 @@
 
 body {
   font-family: "Helvetica", "Arial", sans-serif, system-ui;
-}
-
-
-main {
   margin: 0 auto;
   max-width: 50em;
   line-height: 1.5;
   padding: 0.25em 0.25em;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   min-height: 100vh;
   font-size: 1em;
 }
 
-
 h1 {
-  font-size: 2.5em;
+  font-size: 2em;
   font-weight: 500;
 }
 
+/* status section */
 
-/* navigation back arrow styles */
-
-#back-arrow {
-  display: flex;
-  justify-content: start;
-  background: none;
-  border: none;
-  font-size:  x-large;
-  font-weight: bold;
-  margin: 0;
-  padding: 0;
-  color: inherit;
-  text-decoration: none;
+.status-container {
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem;
 }
 
+.status-container ul {
+  margin: 0;
+}
 
 /* submit form styles */
 
+.submit-form legend {
+  font-size: 1.2em;
+  font-weight: 100;
+}
 
 .submit-form {
   display: flex;
   flex-direction: column;
   padding: 0.5em;
-}
-
-
-.form-group,
-.btn-container {
-  margin-bottom: 0.5em;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.submit-btn {
-}
-
-
-.label-input-row {
-  gap: 0.5em;
-}
-
-
-.tooltip {
-  margin-top: 0.25em;
-  font-size: 0.9em;
-  color: #6c757d;
   max-width: 40em;
 }
 
-
-.legend-with-radios {
+.form-group,
+.btn-container {
+  margin: 0.5em;
   display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
-
-fieldset.form-group {
-  border: none;
-  padding: 0;
+.tooltip {
+  margin: 0.25em;
+  font-size: 0.9em;
+  color: #6c757d;
 }
 
-
-fieldset.form-group legend {
-  padding: 0;
+form fieldset, .submit-btn {
+  padding: 0.5em;
 }
-
-
-.submit-form div,
-.submit-form fieldset,
-.submit-form label,
-.submit-form input,
-.submit-form legend {
-  padding: 0.1em; 
-  margin-right: 0.5em;
-}
-
 
 .blank-field {
   display: none;
-}
-
-.status-buttons {
-  margin: 1rem 0;
-}
-
-.status-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.status-container {
-  margin: 0.5rem 0 1.5rem;
-  padding: 0.75rem;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  border-left: 3px solid #007bff;
 }
