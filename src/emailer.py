@@ -1,9 +1,49 @@
+import argparse
+import os
 import smtplib
+import sys
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 from pathlib import Path
+
+
+def set_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-r",
+        "-rec",
+        "--recipient",
+        type=str,
+        help="Email to send email to",
+        required=True,
+    )
+    parser.add_argument(
+        "-s",
+        "-sub",
+        "--subject",
+        type=str,
+        help="Subject of email.",
+        required=True,
+    )
+    parser.add_argument(
+        "-b",
+        "-body",
+        "--body",
+        type=str,
+        help="Body of email to send",
+        required=True,
+    )
+    parser.add_argument(
+        "-a",
+        "-att",
+        "--attachment",
+        type=str,
+        help="Filepath of attachment or email.",
+    )
+    return parser
 
 
 class Emailer:
@@ -57,3 +97,36 @@ class Emailer:
         finally:
             if server is not None:
                 server.quit()
+
+
+def main():
+    EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS", "")
+    EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
+
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        raise ValueError("EMAIL_ADDRESS and EMAIL_PASSWORD environment variables must be set")
+        sys.exit(1)
+
+    parser = set_arg_parser()
+    args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
+    mailer = Emailer(EMAIL_ADDRESS, EMAIL_PASSWORD)
+
+    message = mailer.create_email_message(
+        recipient_email=args.recipient, message_subject=args.subject, message_body=args.body
+    )
+
+    attachment = args.attachment
+
+    if attachment and os.path.exists(attachment):
+        message = mailer.add_attachment(message=message, filepath=attachment)
+
+    mailer.send_email(message)
+
+
+if __name__ == "__main__":
+    main()
