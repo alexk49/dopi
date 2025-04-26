@@ -1,0 +1,21 @@
+{
+  "name": "dopi",
+  "version": "1.0.0",
+  "description": "check dois resolve with dopi",
+  "main": "scripts.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexk49/dopi.git"
+  },
+  "homepage": "https://github.com/alexk49/dopi#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "eslint": "^9.25.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3"
+  },
+  "scripts": {
+      "lint": "npx eslint src/static/*.js",
+      "format": "npx prettier --write src/static/*.js"
+  }
+}
