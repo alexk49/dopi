@@ -64,10 +64,34 @@ def set_arg_parser() -> argparse.ArgumentParser:
         help="Run web application locally",
     )
     group.add_argument(
+        "-lpy",
+        "--lint-py",
+        action="store_true",
+        help="Lint python files.",
+    )
+    group.add_argument(
+        "-ljs",
+        "--lint-js",
+        action="store_true",
+        help="Lint javascript files.",
+    )
+    group.add_argument(
         "-l",
         "--lint",
         action="store_true",
-        help="Lint python files.",
+        help="Lint all files",
+    )
+    group.add_argument(
+        "-tpy",
+        "--test-py",
+        action="store_true",
+        help="Run python tests.",
+    )
+    group.add_argument(
+        "-t",
+        "--test",
+        action="store_true",
+        help="Run all tests",
     )
     return parser
 
@@ -80,13 +104,30 @@ def run_command(command):
         sys.exit(e.returncode)
 
 
-def run_linters():
+def run_py_tests():
+    run_command(["python", "-m", "unittest", "discover"])
+
+
+def run_tests():
+    run_py_tests()
+                 
+
+def run_js_linters():
+    run_command(["npx", "eslint", "src/static/*.js"])
+    run_command(["npx", "prettier", "--write", "src/static/*.js"])
+
+
+def run_py_linters():
     run_command(["ruff", "check", ".", "--fix"])
 
     run_command(["ruff", "format", "."])
 
     run_command(["mypy", "."])
 
+
+def run_linters():
+    run_py_linters()
+    run_js_linters()
 
 def main():
     parser = set_arg_parser()
@@ -100,8 +141,24 @@ def main():
         run_app()
         sys.exit()
 
+    if args.lint_py:
+        run_py_linters()
+        sys.exit()
+
+    if args.lint_js:
+        run_js_linters()
+        sys.exit()
+
     if args.lint:
         run_linters()
+        sys.exit()
+
+    if args.test:
+        run_tests()
+        sys.exit()
+
+    if args.test_py:
+        run_py_tests()
         sys.exit()
 
     resolving_host = args.resolving_host
