@@ -2,6 +2,7 @@
 complete
 failures
 queue
+build
 *egg-info
 
 test_data*

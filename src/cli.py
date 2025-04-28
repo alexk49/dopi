@@ -110,7 +110,7 @@ def run_py_tests():
 
 def run_tests():
     run_py_tests()
-                 
+
 
 def run_js_linters():
     run_command(["npx", "eslint", "src/static/*.js"])
@@ -128,6 +128,7 @@ def run_py_linters():
 def run_linters():
     run_py_linters()
     run_js_linters()
+
 
 def main():
     parser = set_arg_parser()

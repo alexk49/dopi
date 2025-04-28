@@ -1,5 +1,6 @@
 import pprint
 import sys
+from multiprocessing import Process
 from pathlib import Path
 
 from config import Config
@@ -87,6 +88,12 @@ def process_queue(lock_filepath: Path = Config.LOCK_FILEPATH, directories: dict 
     finally:
         print("Process complete, removing lock file")
         lock_filepath.unlink(missing_ok=True)
+
+
+def start_queue():
+    p = Process(target=process_queue)
+    p.start()
+    p.join()
 
 
 if __name__ == "__main__":

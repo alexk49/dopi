@@ -1,8 +1,9 @@
 from bottle import default_app, response, request, static_file
 
 from config import Config
-from validators import validate_form, get_errors
 from helpers import add_csv_to_queue
+from submissions import start_queue
+from validators import validate_form, get_errors
 
 
 app = default_app()
@@ -60,7 +61,7 @@ def post_submit():
         print("process already running, file added to the queue dir at %s", output_path)
     else:
         print("starting queue process")
-        # process_queue(APP_DIR)
+        start_queue()
 
     response.content_type = "application/json"
     return {"success": True, "message": "Thank you, your submission has been added to the queue!", "errors": {}}
