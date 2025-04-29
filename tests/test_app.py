@@ -132,9 +132,9 @@ class SubmitFormTestCase(unittest.TestCase):
         mock_validate_form.return_value = {}
         mock_get_errors.return_value = {"email": "Email is required"}
 
-        res = self.test_app.post("/submit", params={"resolver": "", "email": "", "dois": ""})
+        res = self.test_app.post("/submit", params={"resolver": "", "email": "", "dois": ""}, expect_errors=True)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 400)
         res_dict = res.json
 
         self.assertFalse(res_dict["success"])
