@@ -16,6 +16,16 @@ def must_be_empty(value: Any) -> dict:
     return {"ok": False, "error": "This field must be empty."}
 
 
+def validate_csrf_token(session_token: str, form_token: str) -> dict:
+    if not session_token or not form_token:
+        return {"ok": False, "error": "Missing CSRF token."}
+
+    if session_token != form_token:
+        return {"ok": False, "error": "CSRF token mismatch."}
+
+    return {"ok": True, "value": form_token}
+
+
 def is_email(value: str) -> dict:
     if "@" in value and "." in value:
         return {"ok": True, "value": value}
@@ -65,7 +75,7 @@ def chain_validators(value, *validators) -> dict:
     return {"ok": True, "value": result["value"]}
 
 
-def validate_form(data: dict) -> dict:
+def validate_form(data: dict, session_token: str) -> dict:
     """
     Runs all form validation and returns dict of results
 
@@ -74,6 +84,7 @@ def validate_form(data: dict) -> dict:
     {'email': {'ok': True, 'value': 'someone@email.com'}, 'resolver': {'ok': True, 'value': 'anotherexample.com'}, 'dois_text': {'ok': True, 'value': 'doi-value'}}
     """
     results = {
+        "csrf_token": validate_csrf_token(session_token, data.get("csrf_token")),
         "email": chain_validators(data.get("email"), is_required, is_email),
         "resolver": chain_validators(data.get("resolving_host"), is_required, is_host),
         "dois": chain_validators(data.get("dois_text"), is_required, validate_dois),

@@ -1,3 +1,10 @@
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
 function countLines(event) {
   const counterEl = document.getElementById("dois_text_counter");
 
@@ -87,6 +94,9 @@ async function handleFormSubmission(form, errorsDiv, messageDiv, doisText) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  /* populate csrf token in submit form */
+  document.getElementById("csrf_token").value = getCookie("csrf_token");
+
   /* set up queue toggle */
   const showQueueButton = document.getElementById("show_queue_counter");
   const queueCounter = document.getElementById("queue_counter");

@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Tuple
 
 
+def generate_csrf_token():
+    return os.urandom(16).hex()
+
+
 def get_list_from_str(dois: str) -> list:
     """
     Convert given str of separated by new lines into a list

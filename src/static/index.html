@@ -34,6 +34,7 @@
     <div id="errors" class="error-messages" role="status" aria-live="polite"></div>
 
     <form id="doi_submit_form" action="/submit" method="post" class="submit-form">
+    <input type="hidden" name="csrf_token" id="csrf_token">
     <fieldset>
       <legend>Submit DOIs to check</legend>
       <div class="form-group">
