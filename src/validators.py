@@ -84,7 +84,7 @@ def validate_form(data: dict, session_token: str) -> dict:
     {'email': {'ok': True, 'value': 'someone@email.com'}, 'resolver': {'ok': True, 'value': 'anotherexample.com'}, 'dois_text': {'ok': True, 'value': 'doi-value'}}
     """
     results = {
-        "csrf_token": validate_csrf_token(session_token, data.get("csrf_token")),
+        "csrf_token": validate_csrf_token(session_token, data.get("csrf_token", "")),
         "email": chain_validators(data.get("email"), is_required, is_email),
         "resolver": chain_validators(data.get("resolving_host"), is_required, is_host),
         "dois": chain_validators(data.get("dois_text"), is_required, validate_dois),

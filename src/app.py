@@ -1,4 +1,4 @@
-from bottle import default_app, hook, response, request, static_file
+from bottle import default_app, response, request, static_file
 
 from config import Config
 from helpers import add_csv_to_queue, generate_csrf_token
@@ -21,7 +21,7 @@ def download_complete_file(filename: str):
 
 @app.get("/")
 def home():
-    if not request.get_cookie('csrf_token'):
+    if not request.get_cookie("csrf_token"):
         token = generate_csrf_token()
         response = static_file("index.html", root=Config.STATIC_DIR)
         response.set_cookie("csrf_token", token)
@@ -48,7 +48,7 @@ def completed():
 
 @app.post("/submit")
 def post_submit():
-    session_token = request.get_cookie('csrf_token')
+    session_token = request.get_cookie("csrf_token")
 
     result = validate_form(request.forms, session_token)
     errors = get_errors(result)
