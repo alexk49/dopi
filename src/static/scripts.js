@@ -5,6 +5,15 @@ function getCookie(name) {
   return null;
 }
 
+function toggleElVisibility(el, onShowCallback) {
+  if (el.hidden) {
+    if (onShowCallback) onShowCallback();
+    el.hidden = false;
+  } else {
+    el.hidden = true;
+  }
+}
+
 function countLines(event) {
   const counterEl = document.getElementById("dois_text_counter");
 
@@ -22,29 +31,58 @@ function countLines(event) {
 }
 
 async function fetchServerData(url) {
-  const response = await fetch(url, {
-    method: "GET",
-  });
-  return await response.json();
+  try {
+    const response = await fetch(url);
+    if (!response.ok)
+      throw new Error(`HTTP error: ${response.status} - ${response}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching data from: ${url}, error: ${error}`);
+    return {};
+  }
 }
 
 async function fetchFormResponse(url, formData) {
-  const response = await fetch(url, {
-    method: "POST",
-    body: formData,
-  });
-  return await response.json();
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error(
+      `Error posting form data to: ${url} - error: ${error}, form-data: ${formData}`,
+    );
+    return {};
+  }
 }
 
 async function updateQueueCounter(queueCounterEl) {
   const result = await fetchServerData("/queue");
-  const queue_count = result.queue_count;
+  const queueCount = result.queue_count;
 
-  if (queue_count === "1") {
-    queueCounterEl.innerHTML = `There is ${queue_count} file in the queue to be processed.`;
+  if (queueCount === "1") {
+    queueCounterEl.textContent = `There is ${queueCount} file in the queue to be processed.`;
   } else {
-    queueCounterEl.innerHTML = `There are ${queue_count} files in the queue to be processed.`;
+    queueCounterEl.textContent = `There are ${queueCount} files in the queue to be processed.`;
   }
+}
+
+function buildCompletedFilesList(filenames) {
+  const ul = document.createElement("ul");
+  ul.id = "completed-files-list";
+
+  filenames.forEach((filename) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = `/complete/${filename}`;
+    a.textContent = filename;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+
+  return ul;
 }
 
 async function updateCompletedFiles(completedFilesEl) {
@@ -52,17 +90,10 @@ async function updateCompletedFiles(completedFilesEl) {
   const completed = result.completed;
 
   if (completed && Array.isArray(completed)) {
-    completedFilesEl.innerHTML = `
-        <ul id="completed-files-list">
-        </ul>`;
+    completedFilesEl.innerHTML = "";
 
-    const ulElement = document.getElementById("completed-files-list");
-
-    completed.forEach((filename) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="/complete/${filename}">${filename}</a>`;
-      ulElement.appendChild(li);
-    });
+    const ulElement = buildCompletedFilesList(completed);
+    completedFilesEl.appendChild(ulElement);
   }
 }
 
@@ -103,26 +134,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (showQueueButton !== null && queueCounter !== null) {
     showQueueButton.addEventListener("click", async () => {
-      if (queueCounter.hidden) {
-        await updateQueueCounter(queueCounter);
-        queueCounter.hidden = false;
-      } else {
-        queueCounter.hidden = true;
-      }
+      toggleElVisibility(queueCounter, () => updateQueueCounter(queueCounter));
     });
   }
 
   /* set up complete files toggle */
   const showCompletedButton = document.getElementById("show_completed_files");
   const completedFilesEl = document.getElementById("completed_files");
+
   if (showCompletedButton !== null && completedFilesEl !== null) {
     showCompletedButton.addEventListener("click", async () => {
-      if (completedFilesEl.hidden) {
-        await updateCompletedFiles(completedFilesEl);
-        completedFilesEl.hidden = false;
-      } else {
-        completedFilesEl.hidden = true;
-      }
+      toggleElVisibility(completedFilesEl, () =>
+        updateCompletedFiles(completedFilesEl),
+      );
     });
   }
 
