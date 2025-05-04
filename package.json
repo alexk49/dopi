@@ -1,5 +1,6 @@
 {
   "name": "dopi",
+  "type": "module",
   "version": "1.0.0",
   "description": "check dois resolve with dopi",
   "main": "scripts.js",
@@ -12,10 +13,16 @@
     "@eslint/js": "^9.25.1",
     "eslint": "^9.25.1",
     "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "prettier": "^3.5.3"
   },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
   "scripts": {
-      "lint": "npx eslint src/static/*.js",
-      "format": "npx prettier --write src/static/*.js"
+    "lint": "npx eslint src/static/*.js",
+    "format": "npx prettier --write src/static/*.js",
+    "test": "jest"
   }
 }

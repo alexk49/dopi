@@ -3,6 +3,7 @@ complete
 failures
 queue
 build
+coverage
 *egg-info
 
 test_data*
