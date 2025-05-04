@@ -8,12 +8,14 @@ from pathlib import Path
 
 from app import run_app
 from crossref import fetch_dois_data
+from emailer import run_emailer_cli, set_emailer_arg_parser
 from helpers import read_full_csv_data
 from submissions import write_full_metadata_to_csv, write_resolving_host_summary_to_csv
 
 
 def set_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest="command", required=False)
 
     parser.add_argument(
         "-rh",
@@ -93,6 +95,14 @@ def set_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run all tests",
     )
+
+    emailer_parser = subparsers.add_parser(
+        "emailer", help="Send email, --recipient | --subject | --body | --attachment"
+    )
+    emailer_args = set_emailer_arg_parser()
+    for action in emailer_args._actions:
+        if action.option_strings:
+            emailer_parser._add_action(action)
     return parser
 
 
@@ -108,8 +118,13 @@ def run_py_tests():
     run_command(["python", "-m", "unittest", "discover"])
 
 
+def run_js_tests():
+    run_command(["npm", "test"])
+
+
 def run_tests():
     run_py_tests()
+    run_js_tests()
 
 
 def run_js_linters():
@@ -140,6 +155,10 @@ def main():
 
     if args.run_app:
         run_app()
+        sys.exit()
+
+    if args.command == "emailer":
+        run_emailer_cli(args)
         sys.exit()
 
     if args.lint_py:

@@ -9,8 +9,8 @@ from email import encoders
 from pathlib import Path
 
 
-def set_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+def set_emailer_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(add_help=False)
 
     parser.add_argument(
         "-r",
@@ -99,19 +99,12 @@ class Emailer:
                 server.quit()
 
 
-def main():
+def run_emailer_cli(args):
     EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS", "")
     EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
 
     if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
         raise ValueError("EMAIL_ADDRESS and EMAIL_PASSWORD environment variables must be set")
-        sys.exit(1)
-
-    parser = set_arg_parser()
-    args = parser.parse_args()
-
-    if len(sys.argv) == 1:
-        parser.print_help()
         sys.exit(1)
 
     mailer = Emailer(EMAIL_ADDRESS, EMAIL_PASSWORD)
@@ -129,4 +122,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = set_emailer_arg_parser()
+    args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
+    run_emailer_cli(args)
