@@ -92,8 +92,8 @@ def process_queue(lock_filepath: Path = Config.LOCK_FILEPATH, directories: dict 
 
 def start_queue():
     p = Process(target=process_queue)
+    p.daemon = True
     p.start()
-    p.join()
 
 
 if __name__ == "__main__":

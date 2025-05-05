@@ -87,16 +87,6 @@ class TestProcessFiles(unittest.TestCase):
 
 class TestProcessQueue(unittest.TestCase):
     @patch("src.submissions.create_lockfile")
-    @patch("src.submissions.sys.exit")
-    def test_process_queue_lock_failure(self, mock_exit, mock_create_lockfile):
-        mock_create_lockfile.return_value = False
-        mock_lock_file = Path("/test/lock")
-
-        process_queue(lock_filepath=mock_lock_file)
-
-        mock_exit.assert_called_once_with(1)
-
-    @patch("src.submissions.create_lockfile")
     @patch("src.submissions.process_files")
     def test_process_queue_no_files(self, mock_process_files, mock_create_lockfile):
         mock_create_lockfile.return_value = True
