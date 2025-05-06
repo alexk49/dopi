@@ -37,8 +37,9 @@ export async function fetchServerData(url) {
       throw new Error(`HTTP error: ${response.status} - ${response}`);
     return await response.json();
   } catch (error) {
-    console.error(`Error fetching data from: ${url}, error: ${error}`);
-    return {};
+    let err_msg = `Error fetching data from: ${url}, error: ${error}`
+    console.error(err_msg);
+    return { 'success': 'false', 'message': err_msg }
   }
 }
 
@@ -56,10 +57,9 @@ export async function fetchFormResponse(url, formData) {
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     return await response.json();
   } catch (error) {
-    console.error(
-      `Error posting form data to: ${url} - error: ${error}, form-data: ${formData}`,
-    );
-    return {};
+    let err_msg = `Error posting form data to: ${url} - error: ${error}`
+    console.error(err_msg);
+    return { 'success': 'false', 'message': err_msg }
   }
 }
 
@@ -125,7 +125,7 @@ export function handleFormSuccess(form, doisText, errorsDiv) {
   clearErrors(errorsDiv);
 }
 
-export function handleFormErrors(messageDiv, errorsDiv, errors) {
+export function handleFormErrors(errorsDiv, errors) {
   const errorList = Object.entries(errors)
     .map(([field, msg]) => `<li><strong>${field}</strong>: ${msg}</li>`)
     .join("");
@@ -153,6 +153,8 @@ export async function handleFormSubmission(
   clearErrors(errorsDiv);
 
   const result = await fetchFormResponse("/submit", formData);
+
+  console.log(result)
 
   showMessage(messageDiv, result.message, result.success);
 

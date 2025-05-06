@@ -7,6 +7,7 @@ ENV PATH="/venv/bin:$PATH"
 RUN pip install bottle gunicorn
 
 COPY src /src
+COPY static /static
 
 WORKDIR /src
 
