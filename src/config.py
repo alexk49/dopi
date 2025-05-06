@@ -21,7 +21,7 @@ def setup_directories(app_dir: Path) -> dict[str, Path]:
 
 class Config:
     APP_DIR: Path = Path().resolve()
-    STATIC_DIR: Path = APP_DIR / "src" / "static"
+    STATIC_DIR: Path = APP_DIR / "static"
 
     directories: dict = setup_directories(APP_DIR)
 

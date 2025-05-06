@@ -3,11 +3,11 @@ name = "dopi"
 readme = "README.md"
 description = "Calls for interacting with DOIs"
 dynamic = ["version"]
+[project.scripts]
+dopi = "cli:main"
 dependencies = [
     "bottle==0.13.2",
 ]
-[project.scripts]
-dopi = "cli:main"
 [project.optional-dependencies]
 lint = [
     "ruff==0.9.6",

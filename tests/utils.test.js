@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, jest, it, test} from '@jest/globals';
-import { buildCompletedFilesList, countLines, fetchFormResponse, fetchServerData, fetchCompleteFiles, fetchQueueCount, getCookie, handleFormErrors, showMessage, toggleElVisibility, updateQueueCounter } from '../src/static/utils.js';
+import { buildCompletedFilesList, countLines, fetchFormResponse, fetchServerData, fetchCompleteFiles, fetchQueueCount, getCookie, handleFormErrors, showMessage, toggleElVisibility, updateQueueCounter } from '../static/utils.js';
 
 describe('buildCompletedFilesList', () => {
   test('returns a UL element with links for each filename', () => {
