@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, describe, expect, jest, it, test} from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, jest, it, test } from '@jest/globals';
 import { buildCompletedFilesList, countLines, fetchFormResponse, fetchServerData, fetchCompleteFiles, fetchQueueCount, getCookie, handleFormErrors, showMessage, toggleElVisibility, updateQueueCounter } from '../static/utils.js';
 
 describe('buildCompletedFilesList', () => {
@@ -121,7 +121,8 @@ describe('fetchServerData', () => {
     fetch.mockRejectedValueOnce(new Error("Network error"));
 
     const result = await fetchServerData("/fail-url");
-    expect(result).toEqual({});
+    expect(result).toEqual({ 'success': 'false', 'message': "Error fetching data from: /fail-url, Error: Network error" }
+    );
   });
 
   test("throws on non-ok response and returns empty object", async () => {
@@ -132,92 +133,91 @@ describe('fetchServerData', () => {
     });
 
     const result = await fetchServerData("/error-url");
-    expect(result).toEqual({});
-      expect.stringContaining("Error fetching data from: /error-url")
+    expect(result.message).toEqual("Error fetching data from: /error-url, Error: HTTP error: 500");
   });
 });
 
 describe('fetchQueueCount', () => {
-    globalThis.fetch = jest.fn();
-    test("Returns queue count when json is correct", async () => {
-      const mockData = { queue_count: "2" };
+  globalThis.fetch = jest.fn();
+  test("Returns queue count when json is correct", async () => {
+    const mockData = { queue_count: "2" };
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockData),
-      });
-
-      const result = await fetchQueueCount();
-      expect(result).toEqual("2");
-      expect(fetch).toHaveBeenCalled();
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockData),
     });
+
+    const result = await fetchQueueCount();
+    expect(result).toEqual("2");
+    expect(fetch).toHaveBeenCalled();
+  });
 });
 
 
 describe('fetchCompleteFiles', () => {
-    globalThis.fetch = jest.fn();
-    test("Returns complete files list when json is correct", async () => {
-      const mockData = { completed: ["file1.csv", "file2.csv", "file3.csv"] };
+  globalThis.fetch = jest.fn();
+  test("Returns complete files list when json is correct", async () => {
+    const mockData = { completed: ["file1.csv", "file2.csv", "file3.csv"] };
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockData),
-      });
-
-      const result = await fetchCompleteFiles();
-      expect(result).toEqual(mockData.completed);
-      expect(fetch).toHaveBeenCalled();
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockData),
     });
+
+    const result = await fetchCompleteFiles();
+    expect(result).toEqual(mockData.completed);
+    expect(fetch).toHaveBeenCalled();
+  });
 });
 
 
 describe('fetchFormResponse', () => {
   globalThis.fetch = jest.fn();
-  
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  
+
   test('should successfully fetch data and return json response', async () => {
     const url = '/submit';
     const formData = new FormData();
     formData.append('name', 'Test User');
     formData.append('email', 'test@example.com');
-    
+
     const mockResponse = {
       json: jest.fn().mockResolvedValue({ success: true, message: 'Success' }),
       ok: true,
       status: 200
     };
     fetch.mockResolvedValue(mockResponse);
-    
+
     const result = await fetchFormResponse(url, formData);
-    
+
     expect(fetch).toHaveBeenCalledWith(url, {
       method: 'POST',
       body: formData
     });
-    
+
     expect(mockResponse.json).toHaveBeenCalled();
-    
+
     expect(result).toEqual({ success: true, message: 'Success' });
   });
-  
+
   test('should handle network errors', async () => {
     const url = '/submit';
     const formData = new FormData();
-    
+
     const networkError = new Error('Network failure');
     fetch.mockRejectedValue(networkError);
-    
+
     const result = await fetchFormResponse(url, formData);
-    
+
     expect(fetch).toHaveBeenCalledWith(url, {
       method: 'POST',
       body: formData
     });
-    
-    expect(result).toEqual({});
+
+    expect(result.message).toEqual('Error posting form data to: /submit - Error: Network failure');
   });
 });
 
@@ -262,7 +262,7 @@ describe('handleFormErrors', () => {
       author: 'Author name too short'
     };
 
-    handleFormErrors(messageDiv, errorsDiv, errors);
+    handleFormErrors(errorsDiv, errors);
 
     expect(errorsDiv.innerHTML).toBe(
       '<ul><li><strong>title</strong>: Missing title</li><li><strong>author</strong>: Author name too short</li></ul>'
