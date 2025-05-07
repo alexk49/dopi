@@ -7,6 +7,14 @@ import {
   countLines,
 } from "./utils.js";
 
+function addEmail() {
+  const link = document.createElement("a");
+  const email = "dopichecker@gmail.com"
+  link.href = `mailto:${email}`;
+  link.textContent = email;
+  document.getElementById("email-link").appendChild(link);
+}
+
 function setupCSRFToken() {
   const csrfTokenField = document.getElementById("csrf_token");
   if (csrfTokenField) {
@@ -57,7 +65,7 @@ function setupFormSubmission() {
 
   if (!doiForm || !errorsDiv || !messageDiv) return;
 
-  doiForm.addEventListener("submit", async function (e) {
+  doiForm.addEventListener("submit", async function(e) {
     e.preventDefault();
     messageDiv.textContent = "";
     await handleFormSubmission(doiForm, errorsDiv, messageDiv, doisTextEl);
@@ -65,6 +73,7 @@ function setupFormSubmission() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  addEmail();
   setupCSRFToken();
   setupQueueCounter();
   setupCompletedFilesToggle();
