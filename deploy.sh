@@ -15,4 +15,4 @@ fi
 
 docker build -t dopi .
 source .env
-docker run --env-file .env -p 8888:"$PORT" --name "$CONTAINER_NAME" -it dopi
+docker run --env-file .env -p "$LIVE_PORT":"$PORT" --name "$CONTAINER_NAME" -it dopi
