@@ -17,4 +17,12 @@ fi
 export $(grep -v '^#' .env | xargs)
 
 docker build -t dopi .
-docker run --env-file .env -p "$HOST_PORT":"$PORT" --name "$CONTAINER_NAME" dopi
+
+docker run --detach \
+  --env-file .env \
+  --publish "$HOST_PORT":"$PORT" \
+  --volume "$(pwd)/queue":/src/queue \
+  --volume "$(pwd)/failures":/src/failures \
+  --volume "$(pwd)/complete":/src/complete \
+  --name "$CONTAINER_NAME" \
+  dopi
