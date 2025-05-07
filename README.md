@@ -3,3 +3,7 @@
 Python application for checking Dois.
 
 The start queue function runs as a background process but this can glitch a bit when bottle debug is set to true.
+
+deploy with:
+
+git push prod main
