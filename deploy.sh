@@ -13,6 +13,8 @@ if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
     docker rm -f "$CONTAINER_NAME"
 fi
 
+# source .env file vars
+export $(grep -v '^#' .env | xargs)
+
 docker build -t dopi .
-source .env
-docker run --env-file .env -p "$LIVE_PORT":"$PORT" --name "$CONTAINER_NAME" -it dopi
+docker run --env-file .env -p "$HOST_PORT":"$PORT" --name "$CONTAINER_NAME" dopi
