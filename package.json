@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "description": "check dois resolve with dopi",
+  "license": "MIT",
   "main": "scripts.js",
   "repository": {
     "type": "git",
@@ -21,8 +22,8 @@
     "testEnvironment": "jsdom"
   },
   "scripts": {
-    "lint": "npx eslint src/static/*.js",
-    "format": "npx prettier --write src/static/*.js",
+    "lint": "npx eslint static/*.js",
+    "format": "npx prettier --write static/*.js",
     "test": "jest"
   }
 }

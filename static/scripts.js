@@ -9,7 +9,7 @@ import {
 
 function addEmail() {
   const link = document.createElement("a");
-  const email = "dopichecker@gmail.com"
+  const email = "dopichecker@gmail.com";
   link.href = `mailto:${email}`;
   link.textContent = email;
   document.getElementById("email-link").appendChild(link);
@@ -65,7 +65,7 @@ function setupFormSubmission() {
 
   if (!doiForm || !errorsDiv || !messageDiv) return;
 
-  doiForm.addEventListener("submit", async function(e) {
+  doiForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     messageDiv.textContent = "";
     await handleFormSubmission(doiForm, errorsDiv, messageDiv, doisTextEl);

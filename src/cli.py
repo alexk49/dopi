@@ -128,8 +128,8 @@ def run_tests():
 
 
 def run_js_linters():
-    run_command(["npx", "eslint", "src/static/*.js"])
-    run_command(["npx", "prettier", "--write", "src/static/*.js"])
+    run_command(["npx", "eslint", "static/*.js"])
+    run_command(["npx", "prettier", "--write", "static/*.js"])
 
 
 def run_py_linters():

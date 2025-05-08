@@ -2,6 +2,8 @@
 name = "dopi"
 readme = "README.md"
 description = "Calls for interacting with DOIs"
+license = "MIT"
+license-files = ["LICENSE"]
 dynamic = ["version"]
 [project.scripts]
 dopi = "cli:main"

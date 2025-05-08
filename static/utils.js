@@ -33,13 +33,12 @@ export function countLines(counterEl, textAreaEl) {
 export async function fetchServerData(url) {
   try {
     const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`HTTP error: ${response.status}`);
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     return await response.json();
   } catch (error) {
-    let err_msg = `Error fetching data from: ${url}, ${error}`
+    let err_msg = `Error fetching data from: ${url}, ${error}`;
     console.error(err_msg);
-    return { 'success': 'false', 'message': err_msg }
+    return { success: "false", message: err_msg };
   }
 }
 
@@ -57,9 +56,9 @@ export async function fetchFormResponse(url, formData) {
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     return await response.json();
   } catch (error) {
-    let err_msg = `Error posting form data to: ${url} - ${error}`
+    let err_msg = `Error posting form data to: ${url} - ${error}`;
     console.error(err_msg);
-    return { 'success': 'false', 'message': err_msg }
+    return { success: "false", message: err_msg };
   }
 }
 
@@ -154,7 +153,7 @@ export async function handleFormSubmission(
 
   const result = await fetchFormResponse("/submit", formData);
 
-  console.log(result)
+  console.log(result);
 
   showMessage(messageDiv, result.message, result.success);
 
