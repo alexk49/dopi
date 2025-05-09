@@ -1,4 +1,3 @@
-import pprint
 import sys
 from multiprocessing import Process
 from pathlib import Path
@@ -29,16 +28,17 @@ def email_summary_csv(recipient: str, filepath: Path) -> None:
     mailer.send_email(message)
 
 
-def process_csv_file(file: Path, directories: dict, email_notification: bool = True) -> bool:
+def process_csv_file(
+    file: Path, directories: dict, email_notification: bool = True, full_metadata: bool = False
+) -> bool:
     """Process a single CSV file with DOIs."""
     try:
         print(f"Processing {file}")
         email, resolving_host, dois = read_full_csv_data(file)
         results = fetch_dois_data(dois=dois, resolving_host=resolving_host)
 
-        pprint.pp(results)
-
-        write_full_metadata_to_csv(results, directories=directories)
+        if full_metadata:
+            write_full_metadata_to_csv(results, directories=directories)
 
         summary_filepath = write_resolving_host_summary_to_csv(resolving_host, results, directories=directories)
 
