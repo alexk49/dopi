@@ -47,15 +47,19 @@ def set_emailer_arg_parser() -> argparse.ArgumentParser:
 
 
 class Emailer:
-    def __init__(self, sender_email: str, email_password: str):
+    def __init__(self, sender_email: str, email_password: str = "", local_host: bool = False):
         self.sender_email = sender_email
         self.email_password = email_password
+        self.local_host = local_host
 
     def connect_to_smtp_server(self) -> smtplib.SMTP:
-        """Establishes connection to SMTP server and returns the server object"""
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(self.sender_email, self.email_password)
+        """Establishes connection to either local Postfix or Gmail's SMTP server"""
+        if self.local_host:
+            server = smtplib.SMTP("localhost", 25)
+        else:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(self.sender_email, self.email_password)
         return server
 
     def create_email_message(self, recipient_email: str, message_subject: str, message_body: str) -> MIMEMultipart:
