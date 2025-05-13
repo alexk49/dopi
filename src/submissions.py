@@ -86,6 +86,7 @@ def process_queue(lock_filepath: Path = Config.LOCK_FILEPATH, directories: dict 
 
             process_files(files, directories)
     finally:
+        # TODO delete older files here
         print("Process complete, removing lock file")
         lock_filepath.unlink(missing_ok=True)
 
