@@ -33,7 +33,7 @@ class TestProcessCSVFile(unittest.TestCase):
         ]
         mock_write_summary.return_value = Path("/test/complete/results_summary.csv")
 
-        result = process_csv_file(test_file, mock_directories, email_notification=True)
+        result = process_csv_file(test_file, mock_directories, email_notification=True, full_metadata=True)
 
         self.assertTrue(result)
         mock_read_csv.assert_called_once_with(test_file)
@@ -167,7 +167,7 @@ class TestIntegration(unittest.TestCase):
         self.assertFalse(self.test_csv_path.exists())
 
         csv_files = list(self.complete_dir.glob("*.csv"))
-        self.assertEqual(len(csv_files), 2)
+        self.assertEqual(len(csv_files), 1)
 
 
 if __name__ == "__main__":

@@ -62,13 +62,20 @@ function setupFormSubmission() {
   const errorsDiv = document.getElementById("errors");
   const messageDiv = document.getElementById("message");
   const doisTextEl = document.getElementById("dois_text");
+  const doisTextCounterEl = document.getElementById("dois_text_counter");
 
   if (!doiForm || !errorsDiv || !messageDiv) return;
 
   doiForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     messageDiv.textContent = "";
-    await handleFormSubmission(doiForm, errorsDiv, messageDiv, doisTextEl);
+    await handleFormSubmission(
+      doiForm,
+      errorsDiv,
+      messageDiv,
+      doisTextEl,
+      doisTextCounterEl,
+    );
   });
 }
 

@@ -118,9 +118,10 @@ export function showMessage(messageDiv, message, isSuccess) {
   }
 }
 
-export function handleFormSuccess(form, doisText, errorsDiv) {
+export function handleFormSuccess(form, doisText, doisTextCounter, errorsDiv) {
   form.reset();
   doisText.textContent = "";
+  doisTextCounter.textContent = "";
   clearErrors(errorsDiv);
 }
 
@@ -147,6 +148,7 @@ export async function handleFormSubmission(
   errorsDiv,
   messageDiv,
   doisText,
+  doisTextCounter,
 ) {
   const formData = new FormData(form);
   clearErrors(errorsDiv);
@@ -158,7 +160,7 @@ export async function handleFormSubmission(
   showMessage(messageDiv, result.message, result.success);
 
   if (result.success) {
-    handleFormSuccess(form, doisText, errorsDiv);
+    handleFormSuccess(form, doisText, doisTextCounter, errorsDiv);
   } else {
     handleFormErrors(messageDiv, errorsDiv, result.errors);
   }
