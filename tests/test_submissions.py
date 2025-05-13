@@ -14,9 +14,8 @@ class TestProcessCSVFile(unittest.TestCase):
     @patch("src.submissions.write_full_metadata_to_csv")
     @patch("src.submissions.write_resolving_host_summary_to_csv")
     @patch("src.submissions.email_summary_csv")
-    @patch("src.submissions.pprint.pp")
     def test_process_csv_file_success(
-        self, mock_pp, mock_email, mock_write_summary, mock_write_metadata, mock_fetch, mock_read_csv
+        self, mock_email, mock_write_summary, mock_write_metadata, mock_fetch, mock_read_csv
     ):
         test_file = MagicMock(spec=Path)
         test_file.name = "testfile.csv"
