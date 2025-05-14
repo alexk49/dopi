@@ -2,7 +2,7 @@ import csv
 import os
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Tuple
 
@@ -29,6 +29,29 @@ def create_lockfile(filepath: Path) -> bool:
     except Exception as err:
         print(f"error creating {filepath}: {err}")
         return False
+
+
+def remove_old_complete_files(folder_path, retention_days=21):
+    pattern = re.compile(r".*_(\d{4}_\d{2}_\d{2}_\d{4})-[\w-]+\.csv$")
+    now = datetime.now()
+    cutoff = now - timedelta(days=retention_days)
+
+    folder = Path(folder_path)
+
+    for file in folder.iterdir():
+        if not file.is_file():
+            continue
+
+        match = pattern.match(file.name)
+        if match:
+            timestamp_str = match.group(1)
+            try:
+                file_datetime = datetime.strptime(timestamp_str, "%Y_%m_%d_%H%M")
+                if file_datetime < cutoff:
+                    print(f"old file found, deleting: {file.name}")
+                    file.unlink()
+            except ValueError:
+                print(f"skipping (invalid timestamp): {file.name}")
 
 
 """ Functions for reading csv files """

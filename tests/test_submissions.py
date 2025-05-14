@@ -90,7 +90,7 @@ class TestProcessQueue(unittest.TestCase):
     def test_process_queue_no_files(self, mock_process_files, mock_create_lockfile):
         mock_create_lockfile.return_value = True
         mock_lock_file = MagicMock(spec=Path)
-        mock_directories = {"QUEUE_DIR": MagicMock(spec=Path)}
+        mock_directories = {"QUEUE_DIR": MagicMock(spec=Path), "COMPLETE_DIR": MagicMock(spec=Path)}
 
         mock_directories["QUEUE_DIR"].iterdir.return_value = []
 
@@ -108,7 +108,7 @@ class TestProcessQueue(unittest.TestCase):
         mock_file1 = MagicMock(spec=Path)
         mock_file2 = MagicMock(spec=Path)
 
-        mock_directories = {"QUEUE_DIR": MagicMock(spec=Path)}
+        mock_directories = {"QUEUE_DIR": MagicMock(spec=Path), "COMPLETE_DIR": MagicMock(spec=Path)}
 
         mock_directories["QUEUE_DIR"].iterdir.side_effect = [
             [mock_file1, mock_file2],  # First call returns files

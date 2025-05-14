@@ -1,10 +1,10 @@
 import csv
 import os
-import unittest
-from unittest.mock import mock_open, patch
-
-from pathlib import Path
 import tempfile
+import unittest
+from datetime import datetime, timedelta
+from pathlib import Path
+from unittest.mock import mock_open, patch
 
 from src.helpers import (
     add_csv_to_queue,
@@ -13,6 +13,7 @@ from src.helpers import (
     get_list_from_str,
     read_full_csv_data,
     read_dois_from_csv,
+    remove_old_complete_files,
     write_resolving_host_summary_to_csv,
 )
 
@@ -24,6 +25,44 @@ class TestHelperFunctions(unittest.TestCase):
         expected_result = ["doi1", "doi2", "doi3"]
 
         self.assertEqual(expected_result, get_list_from_str(test_dois))
+
+
+class TestCleanupCompleteFiles(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.folder = Path(self.temp_dir.name)
+        self.now = datetime.now()
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    def _create_file(self, name):
+        file_path = self.folder / name
+        file_path.write_text("test content")
+        return file_path
+
+    def test_deletes_files_older_than_21_days(self):
+        old_date = self.now - timedelta(days=22)
+        timestamp = old_date.strftime("%Y_%m_%d_%H%M")
+        old_file = self._create_file(f"dois_to_nature.com_results_{timestamp}-oldid.csv")
+
+        recent_date = self.now - timedelta(days=10)
+        timestamp_recent = recent_date.strftime("%Y_%m_%d_%H%M")
+        recent_file = self._create_file(f"dois_to_nature.com_results_{timestamp_recent}-recentid.csv")
+
+        non_matching_file = self._create_file("not_a_log_file.csv")
+
+        remove_old_complete_files(self.folder)
+
+        self.assertFalse(old_file.exists(), "Old file should be deleted")
+        self.assertTrue(recent_file.exists(), "Recent file should be kept")
+        self.assertTrue(non_matching_file.exists(), "Non-matching file should be untouched")
+
+    def test_handles_empty_folder_gracefully(self):
+        try:
+            remove_old_complete_files(self.folder)
+        except Exception as e:
+            self.fail(f"Function raised an exception on empty folder: {e}")
 
 
 class TestCreateLockfile(unittest.TestCase):

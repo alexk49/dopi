@@ -8,6 +8,7 @@ from emailer import Emailer
 from helpers import (
     create_lockfile,
     read_full_csv_data,
+    remove_old_complete_files,
     write_resolving_host_summary_to_csv,
     write_full_metadata_to_csv,
 )
@@ -86,7 +87,9 @@ def process_queue(lock_filepath: Path = Config.LOCK_FILEPATH, directories: dict 
 
             process_files(files, directories)
     finally:
-        # TODO delete older files here
+        complete_dir = directories["COMPLETE_DIR"]
+        print("checking for older files to delete")
+        remove_old_complete_files(complete_dir)
         print("Process complete, removing lock file")
         lock_filepath.unlink(missing_ok=True)
 
