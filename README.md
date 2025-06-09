@@ -83,7 +83,7 @@ The web app uses bottle and is just a wrapper for submitting DOIs to be checked.
 
 The actual calls to the CrossRef API are done as a background task.
 
-Note: the background task may behave inconsistently in Bottle's debug mode. For local testing of background tasks, you may need to set `DEBUG=True` in your .env file.
+Note: the background task may behave inconsistently in Bottle's debug mode. For local testing of background tasks, you may need to set `DEBUG=FALSE` in your .env file.
 
 ## cli
 
