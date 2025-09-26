@@ -9,7 +9,7 @@ import {
 
 function addEmail() {
   const link = document.createElement("a");
-  const email = "dopichecker@gmail.com";
+  const email = "hello@booksanon.com";
   link.href = `mailto:${email}`;
   link.textContent = email;
   document.getElementById("email-link").appendChild(link);
