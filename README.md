@@ -46,7 +46,8 @@ More variables are need to be set for full deployment.
 The web application requires .env variables to be set for the following:
 
 ```
-# email credentials, actual app uses gmail
+# email credentials
+# you will probably need to set up an app specific password for email
 EMAIL_ADDRESS=me@email.com
 EMAIL_PASSWORD=email-password
 
